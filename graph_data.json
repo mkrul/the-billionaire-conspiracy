@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    { "data": { "id": "a", "label": "Alice", "type": "person" } },
+    { "data": { "id": "b", "label": "Bob", "type": "person" } },
+    { "data": { "id": "c", "label": "Corp X", "type": "organization" } }
+  ],
+  "edges": [
+    { "data": { "id": "ab", "source": "a", "target": "b", "description": "Friends with" } },
+    { "data": { "id": "ac", "source": "a", "target": "c", "description": "Works at" } }
+  ]
+}

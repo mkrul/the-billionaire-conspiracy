@@ -1,0 +1,6 @@
+---
+description: Rules for network graph
+globs:
+alwaysApply: false
+---
+Check the context.md and rules.md files first.  These are your rules you must follow for this project, and the files that should be included in your context / memory.
