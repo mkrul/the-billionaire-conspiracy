@@ -1,5 +1,4 @@
 // Initialize the parser
-// console.log("main.js: Script start");
 
 // Relationship type color mapping - MOVED TO GLOBAL SCOPE
 const relationshipColors = {
@@ -18,7 +17,6 @@ const defaultColor = '#95A5A6';
 
 try {
     const parser = new NetworkDataParser();
-    // console.log("main.js: NetworkDataParser instantiated:", parser);
 
     // Global variables for filtering and highlighting
     let activeFilters = {
@@ -29,26 +27,82 @@ try {
     let highlightedNode = null;
     let nodeMap = {}; // Move nodeMap to a scope accessible by updateVisualization
     let currentChart = null; // Add a variable to hold the chart instance
-    // console.log("main.js: Global variables initialized");
+
+    // Helper function to filter the graph data to a specific connected component
+    function filterGraphComponent(originalGraphData, startNodeId) {
+        const nodesToKeep = new Set();
+        const linksToKeep = [];
+        let queue = [];
+
+        const startNode = originalGraphData.nodes.find(n => n.id === startNodeId);
+
+        if (!startNode) {
+            console.warn(`Start node "${startNodeId}" for filtering was not found. Displaying an empty graph.`);
+            return { nodes: [], links: [] };
+        }
+
+        const adj = new Map();
+        originalGraphData.links.forEach(link => {
+            if (!adj.has(link.source)) adj.set(link.source, []);
+            if (!adj.has(link.target)) adj.set(link.target, []);
+            adj.get(link.source).push(link.target);
+            adj.get(link.target).push(link.source);
+        });
+
+        nodesToKeep.add(startNodeId);
+        queue.push(startNodeId);
+
+        while (queue.length > 0) {
+            const currentNodeId = queue.shift();
+            const neighbors = adj.get(currentNodeId) || [];
+
+            for (const neighborId of neighbors) {
+                if (originalGraphData.nodes.some(n => n.id === neighborId) && !nodesToKeep.has(neighborId)) {
+                    nodesToKeep.add(neighborId);
+                    queue.push(neighborId);
+                }
+            }
+        }
+
+        const filteredNodes = originalGraphData.nodes.filter(node => nodesToKeep.has(node.id));
+        const filteredLinks = originalGraphData.links.filter(link =>
+            nodesToKeep.has(link.source) && nodesToKeep.has(link.target)
+        );
+
+        if (filteredNodes.length > 0 && filteredNodes.length < originalGraphData.nodes.length) {
+            console.log(`Filtered graph from ${originalGraphData.nodes.length} nodes to ${filteredNodes.length} nodes, and from ${originalGraphData.links.length} links to ${filteredLinks.length} links, focusing on component including "${startNodeId}".`);
+        } else if (filteredNodes.length === 0 && startNode) {
+             console.warn(`Filtering for "${startNodeId}" resulted in an empty graph, although the start node was found. It might be an isolated node.`);
+        }
+
+        return {
+            nodes: filteredNodes,
+            links: filteredLinks
+        };
+    }
 
     // Load and parse the CSV, then create the graph
     async function initNetworkGraph() {
-        // console.log("main.js: initNetworkGraph called");
         try {
-            // console.log("main.js: Attempting to call parser.loadAndParseCSVFromPath. Parser object:", parser);
             // Load and parse the CSV data
-            const graphData = await parser.loadAndParseCSVFromPath('network_graph_relationships.csv');
-            // console.log("main.js: graphData received from parser:", graphData);
+            const rawGraphData = await parser.loadAndParseCSVFromPath('network_graph_relationships.csv');
+
+            const targetNodeId = "Peter Thiel";
+            const filteredGraphData = filterGraphComponent(rawGraphData, targetNodeId);
+
+            if (filteredGraphData.nodes.length === 0 && rawGraphData.nodes.length > 0) {
+                 console.error(`Filtering removed all nodes. This could be due to "${targetNodeId}" not being found or being an isolated node with no links. Check data and node ID.`);
+                 document.getElementById('container').innerHTML =
+                     `<div class="error">Failed to display the graph component for "${targetNodeId}". The node might be missing or isolated.</div>`;
+                 return;
+            }
 
             // Create network graph using Highcharts
-            createNetworkGraph(graphData);
-            // console.log("main.js: createNetworkGraph called");
-            initializeControls(graphData);
-            // console.log("main.js: initializeControls called");
+            createNetworkGraph(filteredGraphData);
+            initializeControls(filteredGraphData); // Initialize controls with the filtered data
             updateVisualization();
-            // console.log("main.js: updateVisualization called initially");
         } catch (error) {
-            console.error('main.js: Failed to initialize network graph:', error);
+            console.error("Error during graph initialization:", error);
             document.getElementById('container').innerHTML =
                 `<div class="error">Failed to load graph data: ${error.message}</div>`;
         }
@@ -56,6 +110,12 @@ try {
 
     // Create the network graph using Highcharts
     function createNetworkGraph(graphData) {
+        // Destroy existing chart if it exists
+        if (currentChart) {
+            currentChart.destroy();
+            currentChart = null;
+        }
+
         // Format the data for Highcharts networkgraph
         const chartData = graphData.links.map(link => [
             link.source,
@@ -199,7 +259,6 @@ try {
 
     // Function to create the legend (moved from index.html)
     function createLegend() {
-        // console.log("createLegend called from main.js");
         const legendContainer = document.getElementById('relationship-legend');
         const relationshipTypes = Object.keys(relationshipColors);
 
@@ -252,7 +311,6 @@ try {
     function updateVisualization() {
         const chart = currentChart; // Use the stored chart instance
         if (!chart) {
-            // console.warn("Chart not initialized yet.");
             return;
         }
 
@@ -354,7 +412,8 @@ try {
     }
 
     function highlightConnectedNodes(node) {
-        const chart = Highcharts.charts[0];
+        const chart = currentChart;
+        if (!chart) return;
 
         // Reset previous highlighting
         chart.series[0].points.forEach(point => {
@@ -390,7 +449,8 @@ try {
     document.querySelector('.close-btn').addEventListener('click', () => {
         document.getElementById('info-panel').classList.remove('active');
         // Reset highlighting
-        const chart = Highcharts.charts[0];
+        const chart = currentChart;
+        if (!chart) return;
         chart.series[0].points.forEach(point => {
             point.update({
                 opacity: 1
@@ -401,7 +461,7 @@ try {
 
     // Export functionality
     function exportNetworkData() {
-        const chart = Highcharts.charts[0];
+        const chart = currentChart;
         if (!chart) return;
 
         // Get visible nodes and links
@@ -454,7 +514,7 @@ try {
 
     // Image export function
     function exportAsImage() {
-        const chart = Highcharts.charts[0];
+        const chart = currentChart;
         if (!chart) return;
 
         // Hide control panels for clean screenshot
@@ -528,7 +588,6 @@ try {
     }
 
     // Initialize when the page is loaded
-    // console.log("main.js: Adding DOMContentLoaded event listener");
     document.addEventListener('DOMContentLoaded', () => {
         initNetworkGraph();
 
@@ -551,7 +610,12 @@ try {
         document.getElementById('export-image').addEventListener('click', exportAsImage);
         document.getElementById('optimize-performance').addEventListener('click', optimizeForLargeDatasets);
     });
-    // console.log("main.js: Script end");
 } catch (error) {
-    console.error('main.js: Error initializing:', error);
+    console.error("A critical error occurred in the application:", error);
+    // Optionally, display a user-friendly message on the page as well
+    const container = document.getElementById('container');
+    if (container) {
+        container.innerHTML =
+            `<div class="error">A critical error occurred. Please check the console for details. ${error.message}</div>`;
+    }
 }
