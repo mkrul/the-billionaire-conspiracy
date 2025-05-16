@@ -488,28 +488,39 @@ try {
             }
         });
 
-        // Create export data
-        const exportData = {
-            nodes: visibleNodes.map(nodeName => {
-                const nodeData = nodeMap[nodeName];
-                return {
-                    id: nodeName,
-                    ventures: nodeData.ventures || [],
-                    quotes: nodeData.quotes || [],
-                    connectionCount: nodeData.connectionCount || 0
-                };
-            }),
-            links: visibleLinks
-        };
+        // Create export data using the parser's format
+        const exportData = parser.toJSON(); // Use the parser's JSON format
 
-        // Convert to JSON and create download link
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+        // Filter to only visible nodes if needed
+        if (visibleNodes.length > 0) {
+            exportData.nodes = exportData.nodes.filter(node =>
+                visibleNodes.includes(node.id)
+            );
+            exportData.links = visibleLinks;
+        }
+
+        // Convert to JSON and create download
+        const dataStr = "data:text/json;charset=utf-8," +
+            encodeURIComponent(JSON.stringify(exportData, null, 2));
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
         downloadAnchorNode.setAttribute("download", "network_graph_export.json");
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
+    }
+
+    // Add function to load JSON data
+    async function loadJSONData(jsonData) {
+        try {
+            const parsedData = parser.loadFromJSON(jsonData);
+            createNetworkGraph(parsedData);
+            initializeControls(parsedData);
+            updateVisualization();
+        } catch (error) {
+            console.error("Error loading JSON data:", error);
+            throw error;
+        }
     }
 
     // Image export function

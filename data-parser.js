@@ -8,6 +8,8 @@ class NetworkDataParser {
         this.nodes = [];
         this.links = [];
         this.nodeMap = new Map(); // To keep track of node indices
+        this.primaryNames = new Set(); // Will store names from the Names column
+        this.jsonData = null; // Add storage for JSON format
     }
 
     /**
@@ -20,72 +22,71 @@ class NetworkDataParser {
         this.nodes = [];
         this.links = [];
         this.nodeMap = new Map();
+        this.primaryNames = new Set();
 
         // Split CSV into lines and get headers
         const lines = csvContent.trim().split('\n');
-        const headers = lines[0].split(',');
 
-        // Process each line (skip header)
+        // First pass: collect all primary names from the Names column
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i];
-            if (!line.trim()) {
-                continue; // Skip empty lines
-            }
+            if (!line.trim()) continue;
 
-            // Parse CSV line (handling quoted values properly)
             const values = this.parseCSVLine(line);
+            const name = values[0];
+            if (name) {
+                this.primaryNames.add(name.trim());
+            }
+        }
 
-            // Extract data from CSV values
+        // Second pass: create nodes and relationships
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line.trim()) continue;
+
+            const values = this.parseCSVLine(line);
             const name = values[0];
             const influence = values[1];
             const venturesStr = values[2];
             const connectionsStr = values[3];
             const quotesStr = values[4];
 
-            // Process ventures (comma-separated list)
+            // Process ventures and other data
             const ventures = venturesStr ? venturesStr.split(';').map(v => v.trim()) : [];
-
-            // Process connections (comma-separated list)
             const connections = connectionsStr ? connectionsStr.split(';').map(c => c.trim()) : [];
-
-            // Process quotes (semicolon-separated list)
             const quotes = quotesStr ? quotesStr.split('|').map(q => q.trim()) : [];
 
-            // Add node if not already in the list
+            // Add primary node
             if (!this.nodeMap.has(name)) {
                 const nodeIndex = this.nodes.length;
                 this.nodeMap.set(name, nodeIndex);
-
                 this.nodes.push({
                     id: name,
                     ventures: ventures,
                     quotes: quotes,
-                    // Count connections as a measure of influence for node sizing
                     connectionCount: connections.length
                 });
             }
 
-            // Parse influence field to extract relationship types
+            // Process relationships only for primary names
             const influenceRelationships = this.parseInfluenceField(influence);
-
-            // Create links based on relationships
             for (const rel of influenceRelationships) {
-                if (rel.target) {
+                if (rel.target && this.primaryNames.has(rel.target)) {
                     this.links.push({
                         source: name,
                         target: rel.target,
                         type: rel.type
                     });
 
-                    // Ensure the target node also exists
+                    // Add target node if it doesn't exist yet
                     if (!this.nodeMap.has(rel.target)) {
                         const nodeIndex = this.nodes.length;
                         this.nodeMap.set(rel.target, nodeIndex);
                         this.nodes.push({
                             id: rel.target,
-                            ventures: [], // No venture info if not a primary row
-                            quotes: [],   // No quote info
-                            connectionCount: 0 // No explicit connections from its own row
+                            ventures: [],
+                            quotes: [],
+                            connectionCount: 0
                         });
                     }
                 }
@@ -268,5 +269,49 @@ class NetworkDataParser {
             return optimizedData;
         }
         return data;
+    }
+
+    /**
+     * Get the current data in JSON format
+     * @returns {Object} Object with nodes and links arrays
+     */
+    toJSON() {
+        return {
+            nodes: this.nodes.map(node => ({
+                id: node.id,
+                ventures: node.ventures || [],
+                quotes: node.quotes || [],
+                connectionCount: node.connectionCount || 0
+            })),
+            links: this.links
+        };
+    }
+
+    /**
+     * Save the current data to a JSON file
+     * @returns {string} JSON string of the data
+     */
+    saveToJSON() {
+        return JSON.stringify(this.toJSON(), null, 2);
+    }
+
+    /**
+     * Load data from JSON format
+     * @param {Object} jsonData - The JSON data to load
+     */
+    loadFromJSON(jsonData) {
+        this.nodes = jsonData.nodes;
+        this.links = jsonData.links;
+        this.nodeMap = new Map();
+
+        // Rebuild nodeMap
+        this.nodes.forEach((node, index) => {
+            this.nodeMap.set(node.id, index);
+        });
+
+        return {
+            nodes: this.nodes,
+            links: this.links
+        };
     }
 }
