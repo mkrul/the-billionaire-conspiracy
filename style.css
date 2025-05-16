@@ -1,0 +1,199 @@
+#container {
+  min-width: 320px;
+  max-width: 100%;
+  margin: 0 auto;
+  height: 800px;
+}
+
+/* Enhanced tooltip styling */
+.tooltip-container {
+  max-width: 300px;
+  padding: 5px;
+  font-family: Arial, sans-serif;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.tooltip-container h3 {
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.tooltip-container p {
+  margin: 5px 0;
+}
+
+/* Cursor style for interactive elements */
+.highcharts-node {
+  cursor: pointer;
+}
+
+.highcharts-link {
+  cursor: pointer;
+}
+
+/* Legend for relationship types */
+.legend-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.legend-color {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  margin-right: 5px;
+  border-radius: 2px;
+}
+
+.legend-label {
+  font-size: 12px;
+}
+
+.control-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    width: 250px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-container input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.filter-section {
+    margin-top: 10px;
+}
+
+.filter-section h5 {
+    margin: 5px 0;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.info-panel {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: none;
+}
+
+.info-panel.active {
+    display: block;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.highlighted-path {
+    stroke-width: 4px;
+    stroke-opacity: 1;
+}
+
+.dimmed {
+    opacity: 0.2;
+}
+
+/* Export section styling */
+.export-section {
+    margin-top: 15px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.export-btn {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.export-btn:hover {
+    background-color: #efefef;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+    .control-panel, .info-panel {
+        width: calc(100% - 40px);
+        max-width: 300px;
+    }
+
+    #container {
+        height: 600px;
+    }
+
+    .legend-container {
+        max-width: 200px;
+        font-size: 10px;
+    }
+}
+
+/* Loading indicator */
+.loading-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.loading-spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

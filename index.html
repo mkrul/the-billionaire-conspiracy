@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Graph Visualization</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/networkgraph.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="control-panel">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search for people...">
+        </div>
+        <div class="filter-container">
+            <h4>Filters</h4>
+            <div class="filter-section">
+                <h5>Relationship Types</h5>
+                <div id="relationship-filters"></div>
+            </div>
+            <div class="filter-section">
+                <h5>Ventures</h5>
+                <div id="ventures-filters"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="container">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Loading network data...</p>
+        </div>
+    </div>
+
+    <div id="info-panel" class="info-panel">
+        <button class="close-btn">&times;</button>
+        <div class="info-content"></div>
+    </div>
+
+    <div class="legend-container">
+        <h4>Relationship Types</h4>
+        <div id="relationship-legend"></div>
+    </div>
+
+    <script src="data-parser.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
