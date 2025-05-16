@@ -141,7 +141,8 @@ try {
                     enabled: true,
                     type: 'xy'
                 },
-                panKey: 'shift'
+                panKey: 'shift',
+                animation: false // Disable chart animations
             },
             title: {
                 text: 'Network Graph: Relationships Visualization'
@@ -153,9 +154,10 @@ try {
                 networkgraph: {
                     keys: ['from', 'to', 'type'],
                     layoutAlgorithm: {
-                        enableSimulation: true,
-                        friction: -0.9,
-                        initialPositions: 'circle'
+                        enableSimulation: false,
+                        friction: 0.1,
+                        initialPositions: 'circle',
+                        center: [0, 0]
                     }
                 }
             },

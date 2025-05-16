@@ -65,16 +65,28 @@
   font-size: 12px;
 }
 
+/* Add Flexbox container for main layout */
+.main-content-container {
+    display: flex; /* Enable Flexbox */
+    height: 100vh; /* Use full viewport height */
+    padding: 10px; /* Add some padding */
+    box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
 .control-panel {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+    /* Remove absolute positioning */
+    position: static;
+    top: auto;
+    left: auto;
+
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 15px;
-    width: 250px;
+    width: 250px; /* Keep a fixed width for the control panel */
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-right: 10px; /* Add some space between control panel and chart */
+    overflow-y: auto; /* Add scrolling if content exceeds height */
 }
 
 .search-container input {

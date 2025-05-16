@@ -11,30 +11,31 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="control-panel">
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search for people...">
-        </div>
-        <div class="filter-container">
-            <h4>Filters</h4>
-            <div class="filter-section">
-                <h5>Relationship Types</h5>
-                <div id="relationship-filters"></div>
+    <div class="main-content-container">
+        <div class="control-panel">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search for people...">
             </div>
-            <div class="filter-section">
-                <h5>Ventures</h5>
-                <div id="ventures-filters"></div>
+            <div class="filter-container">
+                <h4>Filters</h4>
+                <div class="filter-section">
+                    <h5>Relationship Types</h5>
+                    <div id="relationship-filters"></div>
+                </div>
+                <div class="filter-section">
+                    <h5>Ventures</h5>
+                    <div id="ventures-filters"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="container">
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Loading network data...</p>
             </div>
         </div>
     </div>
-
-    <div id="container">
-        <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <p>Loading network data...</p>
-        </div>
-    </div>
-
     <div id="info-panel" class="info-panel">
         <button class="close-btn">&times;</button>
         <div class="info-content"></div>
