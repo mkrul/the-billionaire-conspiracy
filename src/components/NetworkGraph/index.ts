@@ -1,5 +1,4 @@
-import type { Core, ElementDefinition } from 'cytoscape';
-import cytoscape from 'cytoscape';
+import cytoscape, { Core, NodeSingular, ElementDefinition } from 'cytoscape';
 import { NetworkData, NetworkNode, NetworkEdge } from '@/types/network';
 import { parseCSVData } from '@/utils/csv';
 import { defaultStyles } from '@/styles/network';
@@ -19,6 +18,9 @@ export class NetworkGraph {
 
   public async initialize(csvData: string): Promise<void> {
     this.data = parseCSVData(csvData);
+
+    // Log the first few nodes to check image paths
+    console.log('Sample nodes:', this.data.nodes.slice(0, 3));
 
     this.cy = cytoscape({
       container: this.container,
@@ -61,6 +63,20 @@ export class NetworkGraph {
     this.container.addEventListener('contextmenu', (e) => {
       e.stopPropagation();
       return true;
+    });
+
+    // Log any nodes with missing images
+    this.cy.nodes().forEach((node: NodeSingular) => {
+      const img = new Image();
+      img.onerror = () => {
+        console.error(
+          'Failed to load image for node:',
+          node.data('label'),
+          'Image path:',
+          node.data('image')
+        );
+      };
+      img.src = node.data('image');
     });
   }
 

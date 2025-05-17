@@ -17,4 +17,6 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  // Ensure static assets are served correctly
+  assetsInclude: ['**/*.jpg', '**/*.png'],
 });

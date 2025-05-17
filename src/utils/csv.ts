@@ -1,8 +1,38 @@
 import { NetworkData, NetworkNode, NetworkEdge } from '../types/network';
 
+function parseCSVLine(line: string): string[] {
+  const values: string[] = [];
+  let currentValue = '';
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      insideQuotes = !insideQuotes;
+    } else if (char === ',' && !insideQuotes) {
+      values.push(currentValue.trim());
+      currentValue = '';
+    } else {
+      currentValue += char;
+    }
+  }
+
+  // Push the last value
+  values.push(currentValue.trim());
+
+  // Remove quotes from values
+  return values.map((v) => v.replace(/^"|"$/g, ''));
+}
+
+function normalizeImagePath(path: string): string {
+  // Remove /public/ prefix and ensure the path starts with /
+  return path.replace('/public/', '/');
+}
+
 export function parseCSVData(csvData: string): NetworkData {
   const lines = csvData.split('\n');
-  const headers = lines[0].split(',');
+  const headers = parseCSVLine(lines[0]);
   const nodes: NetworkNode[] = [];
   const edges: NetworkEdge[] = [];
 
@@ -11,14 +41,14 @@ export function parseCSVData(csvData: string): NetworkData {
     const line = lines[i].trim();
     if (!line) continue;
 
-    const values = line.split(',');
+    const values = parseCSVLine(line);
     const node: NetworkNode = {
       name: values[0],
       influence: values[1],
       ventures: values[2],
       connections: values[3],
       quotes: values[4],
-      image: values[5],
+      image: normalizeImagePath(values[5]),
     };
     nodes.push(node);
   }
