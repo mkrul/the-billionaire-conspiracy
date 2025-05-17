@@ -1,4 +1,6 @@
-1) DO carefully read project_specs.md to understand the project before you propose a change.
-2) Read context.md to understand the files that should make up the context.
-3) DO summarize our changes in milestones.md after you make a change.
-4) Ask permission for anything that is not in this file.
+1) ALWAYS carefully read markdown/project_specs.md and markdown/context.md before you propose a change.
+2) ALWAYS summarize our changes in markdown/milestones.md after you make a change.
+3) NEVER leave code comments.
+4) NEVER ask if I would like you to proceed with making changes; just make the change. I trust your judgement.
+5) ALWAYS use the current industry standard best practices for the tech stack you're working with.
+6) ALWAYS fix linter errors.
