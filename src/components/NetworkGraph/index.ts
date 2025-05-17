@@ -26,7 +26,16 @@ export class NetworkGraph {
     this.cy = cytoscape({
       container: this.container,
       elements: this.transformDataToElements(),
-      style: defaultStyles,
+      style: [
+        ...defaultStyles,
+        {
+          selector: 'edge.highlighted',
+          style: {
+            'line-color': '#ff0000',
+            width: 3,
+          },
+        },
+      ],
       layout: {
         name: 'cose',
         idealEdgeLength: 150,
@@ -78,6 +87,25 @@ export class NetworkGraph {
         );
       };
       img.src = node.data('image');
+    });
+
+    // Add click handler for nodes
+    this.cy.on('tap', 'node', (event) => {
+      // Reset all edges to default style
+      this.cy.edges().removeClass('highlighted');
+
+      // Get the clicked node
+      const node = event.target;
+
+      // Highlight all edges connected to this node
+      node.connectedEdges().addClass('highlighted');
+    });
+
+    // Add click handler for background to reset highlighting
+    this.cy.on('tap', (event) => {
+      if (event.target === this.cy) {
+        this.cy.edges().removeClass('highlighted');
+      }
     });
   }
 
