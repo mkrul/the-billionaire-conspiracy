@@ -29,9 +29,7 @@ export const defaultStyles = [
     style: {
       width: 2,
       'line-color': '#ccc',
-      'target-arrow-color': '#ccc',
-      'target-arrow-shape': 'triangle',
-      'curve-style': 'bezier',
+      'curve-style': 'straight',
       'font-size': 10,
       'text-rotation': 'autorotate',
       'text-margin-y': -10,

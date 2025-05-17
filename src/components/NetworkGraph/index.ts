@@ -1,4 +1,5 @@
-import cytoscape, { Core, NodeSingular, ElementDefinition } from 'cytoscape';
+import type { Core, NodeSingular, ElementDefinition } from 'cytoscape';
+import cytoscape from 'cytoscape';
 import { NetworkData, NetworkNode, NetworkEdge } from '@/types/network';
 import { parseCSVData } from '@/utils/csv';
 import { defaultStyles } from '@/styles/network';
@@ -86,6 +87,7 @@ export class NetworkGraph {
     }
 
     const elements: ElementDefinition[] = [];
+    const connectedPairs = new Set<string>();
 
     // Add nodes
     this.data.nodes.forEach((node: NetworkNode) => {
@@ -103,18 +105,22 @@ export class NetworkGraph {
       });
     });
 
-    // Add edges
+    // Add edges (only one per node pair)
     this.data.edges.forEach((edge: NetworkEdge) => {
-      elements.push({
-        data: {
-          id: `${edge.source}-${edge.target}`,
-          source: edge.source,
-          target: edge.target,
-          label: edge.relationship,
-        },
-        group: 'edges',
-        selectable: true,
-      });
+      const nodePair = [edge.source, edge.target].sort().join('-');
+      if (!connectedPairs.has(nodePair)) {
+        elements.push({
+          data: {
+            id: `${edge.source}-${edge.target}`,
+            source: edge.source,
+            target: edge.target,
+            label: edge.relationship,
+          },
+          group: 'edges',
+          selectable: true,
+        });
+        connectedPairs.add(nodePair);
+      }
     });
 
     return elements;
