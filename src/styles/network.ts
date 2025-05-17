@@ -29,7 +29,7 @@ export const defaultStyles = [
     selector: 'edge',
     style: {
       width: 2,
-      'line-color': '#ccc',
+      'line-color': '#444',
       'curve-style': 'straight',
       'font-size': 10,
       'text-rotation': 'autorotate',
