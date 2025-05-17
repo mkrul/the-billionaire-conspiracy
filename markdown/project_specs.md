@@ -6,12 +6,12 @@ Build a lightweight, browser-based influence map (~20 nodes) by feeding a static
 
 _Milestone Goal:_ Establish the development environment and include all necessary libraries, ensuring a solid foundation for the visualization project.
 
-- **Create Base HTML and Graph Container**
+- **Render Sample Graph for Verification**
 
-  _Description:_ Set up the HTML structure or main application component that will host the network graph. For example, add a `<div id="cy">` element (or equivalent) that Cytoscape will render the network into. If using a framework (React/Vue), create a component with a container for the Cytoscape canvas.
+  _Description:_ Write a small test script to instantiate a Cytoscape graph with a **very simple** dataset (e.g., two nodes and one edge). This is to confirm that Cytoscape renders properly in the container. Use a basic layout (default) and minimal style. Verify that the sample nodes and edge appear on screen.
 
-  _Input:_ N/A (project files from initialization).
+  _Input:_ Hardcoded sample graph data (tiny nodes/edges array).
 
-  _Output:_ A visible empty container on the page (e.g., a blank div) prepared for Cytoscape to use.
+  _Output:_ A minimal network graph displayed in the app (for example, two labeled nodes connected by an edge, visible in the browser).
 
-  _Plan Reference:_ Plan section on UI layout/setup.
+  _Plan Reference:_ End of setup phase (verification step in project plan).
