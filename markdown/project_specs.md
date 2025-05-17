@@ -6,12 +6,12 @@ Build a lightweight, browser-based influence map (~20 nodes) by feeding a static
 
 _Milestone Goal:_ Load or define the influence data and visualize it as an interactive network using Cytoscape.js with basic styling.
 
-- **Implement Data Import/Loading Mechanism**
+- **Initialize Cytoscape Graph with Data**
 
-  _Description:_ Code the logic to load the influence map data into the application. If data is static, parse a JSON file or define the data in a module. If data comes from an API, implement an async fetch call to retrieve the data. Handle the data loading before graph rendering (e.g., using `fetch()` or reading a local JSON).
+  _Description:_ Use Cytoscape.js to create the network visualization with the prepared elements. Call `cytoscape()` with the container, elements array, a layout, and basic style options. Choose an initial layout algorithm (e.g., `cose` for force-directed layout or a hierarchical layout if the influence data is directional). Ensure all nodes and edges from the dataset are rendered.
 
-  _Input:_ Data source (e.g., `data.json` file or API endpoint URL).
+  _Input:_ Cytoscape container element and elements array (from previous tasks).
 
-  _Output:_ The influence data is loaded into memory (e.g., stored in a JavaScript object/variable or state) and ready for use by Cytoscape.
+  _Output:_ The influence map graph appears on screen with all nodes and edges in a reasonable initial layout.
 
-  _Plan Reference:_ Plan section on data integration.
+  _Plan Reference:_ Core network rendering section of the plan.

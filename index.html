@@ -3,24 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Graph Visualization</title>
+    <title>Network Graph</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
         }
-        #cy {
-            width: 100vw;
+        #network-graph {
+            width: 100%;
             height: 100vh;
             position: absolute;
             top: 0;
             left: 0;
+            pointer-events: none;
+        }
+        #network-graph * {
+            pointer-events: auto;
         }
     </style>
 </head>
 <body>
-    <div id="cy"></div>
-    <script type="module" src="/src/index.ts"></script>
+    <div id="network-graph"></div>
+    <script type="module">
+        import { NetworkGraph } from '@/components/NetworkGraph';
+
+        async function initializeGraph() {
+            const response = await fetch('./network_graph_relationships.csv');
+            const csvData = await response.text();
+
+            const graph = new NetworkGraph('network-graph');
+            await graph.initialize(csvData);
+        }
+
+        initializeGraph().catch(console.error);
+    </script>
 </body>
 </html>
