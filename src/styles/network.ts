@@ -32,7 +32,6 @@ export const defaultStyles = [
       'target-arrow-color': '#ccc',
       'target-arrow-shape': 'triangle',
       'curve-style': 'bezier',
-      label: 'data(label)',
       'font-size': 10,
       'text-rotation': 'autorotate',
       'text-margin-y': -10,
