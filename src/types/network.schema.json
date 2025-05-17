@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Network Graph Schema",
+  "description": "Schema for the influence map network data",
+  "type": "object",
+  "required": ["nodes", "edges"],
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "description": "List of entities (people or organizations) in the network",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the node (lowercase, hyphenated)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the entity"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["person", "organization"],
+            "description": "Type of entity"
+          },
+          "image": {
+            "type": "string",
+            "description": "Path to profile image",
+            "pattern": "^/public/images/.*\\.(jpg|png|gif)$"
+          },
+          "quotes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Notable quotes from the entity"
+          },
+          "ventures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Associated organizations or ventures"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "List of relationships between entities",
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "target", "type", "description"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the relationship"
+          },
+          "source": {
+            "type": "string",
+            "description": "ID of the source node"
+          },
+          "target": {
+            "type": "string",
+            "description": "ID of the target node"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["personal", "professional", "financial", "political"],
+            "description": "Type of relationship"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the relationship"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Optional monetary amount for financial relationships",
+            "pattern": "^\\$[\\d.]+[BM]\\+?$"
+          }
+        }
+      }
+    }
+  }
+}

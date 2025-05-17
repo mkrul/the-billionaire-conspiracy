@@ -2,16 +2,16 @@
 
 Build a lightweight, browser-based influence map (~20 nodes) by feeding a static JSON dataset into Cytoscape.js, the only library that meets all needs—zoom/pan, dark-mode theming, smooth CSS-style animations, click-to-isolate focus, hover tooltips/modals, and optional filters—without requiring React. The plan: integrate Cytoscape, load & map the JSON to graph elements, render with a force layout, then layer on interactions (node highlight/reset, tooltips, detail modals), add light/dark themes via style switching, and ship optional niceties like search, pulse effects, and category filters. Wrap the code in a self-contained module, ensure responsive resizing, cross-browser testing, and document how to update the JSON so the visualization can grow painlessly down the line.
 
-## Epic: **Setup & Configuration**
+## Epic: **Data Handling & Network Rendering**
 
-_Milestone Goal:_ Establish the development environment and include all necessary libraries, ensuring a solid foundation for the visualization project.
+_Milestone Goal:_ Load or define the influence data and visualize it as an interactive network using Cytoscape.js with basic styling.
 
-- **Render Sample Graph for Verification**
+- **Implement Data Import/Loading Mechanism**
 
-  _Description:_ Write a small test script to instantiate a Cytoscape graph with a **very simple** dataset (e.g., two nodes and one edge). This is to confirm that Cytoscape renders properly in the container. Use a basic layout (default) and minimal style. Verify that the sample nodes and edge appear on screen.
+  _Description:_ Code the logic to load the influence map data into the application. If data is static, parse a JSON file or define the data in a module. If data comes from an API, implement an async fetch call to retrieve the data. Handle the data loading before graph rendering (e.g., using `fetch()` or reading a local JSON).
 
-  _Input:_ Hardcoded sample graph data (tiny nodes/edges array).
+  _Input:_ Data source (e.g., `data.json` file or API endpoint URL).
 
-  _Output:_ A minimal network graph displayed in the app (for example, two labeled nodes connected by an edge, visible in the browser).
+  _Output:_ The influence data is loaded into memory (e.g., stored in a JavaScript object/variable or state) and ready for use by Cytoscape.
 
-  _Plan Reference:_ End of setup phase (verification step in project plan).
+  _Plan Reference:_ Plan section on data integration.
