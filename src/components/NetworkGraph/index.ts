@@ -54,7 +54,8 @@ export class NetworkGraph {
         coolingFactor: 0.95,
         minTemp: 1.0,
       },
-      // Allow context menu events
+      minZoom: 1,
+      maxZoom: 3,
       userPanningEnabled: true,
       userZoomingEnabled: true,
       boxSelectionEnabled: false,
