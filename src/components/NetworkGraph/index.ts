@@ -59,6 +59,9 @@ export class NetworkGraph {
   private cy: CyInstance | null = null;
   private container: HTMLElement;
   private data: NetworkData | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+  private resizeHandler: (() => void) | null = null;
+  private orientationHandler: (() => void) | null = null;
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -73,6 +76,8 @@ export class NetworkGraph {
 
     // Log the first few nodes to check image paths
     console.log('Sample nodes:', this.data.nodes.slice(0, 3));
+
+    const isMobile = window.innerWidth < 768;
 
     const config: CyConfig = {
       container: this.container,
@@ -89,23 +94,23 @@ export class NetworkGraph {
       ],
       layout: {
         name: 'cose',
-        idealEdgeLength: 150,
-        nodeOverlap: 30,
+        idealEdgeLength: isMobile ? 100 : 150,
+        nodeOverlap: isMobile ? 20 : 30,
         refresh: 20,
         fit: true,
-        padding: 50,
+        padding: isMobile ? 30 : 50,
         randomize: false,
-        componentSpacing: 150,
-        nodeRepulsion: 600000,
+        componentSpacing: isMobile ? 100 : 150,
+        nodeRepulsion: isMobile ? 400000 : 600000,
         edgeElasticity: 100,
         nestingFactor: 5,
-        gravity: 60,
+        gravity: isMobile ? 80 : 60,
         numIter: 1000,
         initialTemp: 200,
         coolingFactor: 0.95,
         minTemp: 1.0,
       },
-      minZoom: 1,
+      minZoom: isMobile ? 0.5 : 1,
       maxZoom: 3,
       userPanningEnabled: true,
       userZoomingEnabled: true,
@@ -161,6 +166,65 @@ export class NetworkGraph {
         this.cy.edges().removeClass('highlighted');
       }
     });
+
+    // Setup resize handling
+    this.setupResizeHandling();
+  }
+
+  private setupResizeHandling(): void {
+    // Handle window resize events to make the graph responsive
+    this.resizeHandler = () => {
+      if (this.cy) {
+        this.cy.resize();
+        this.cy.fit();
+      }
+    };
+
+    window.addEventListener('resize', this.resizeHandler);
+
+    // Use ResizeObserver for container size changes if supported
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => {
+        if (this.resizeHandler) {
+          this.resizeHandler();
+        }
+      });
+      this.resizeObserver.observe(this.container);
+    }
+
+    // Initial orientation change handling for mobile
+    this.orientationHandler = () => {
+      setTimeout(() => {
+        if (this.resizeHandler) {
+          this.resizeHandler();
+        }
+      }, 100); // Small delay to ensure layout has updated
+    };
+
+    window.addEventListener('orientationchange', this.orientationHandler);
+  }
+
+  public destroy(): void {
+    // Remove event listeners when component is destroyed
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
+    }
+
+    if (this.orientationHandler) {
+      window.removeEventListener('orientationchange', this.orientationHandler);
+      this.orientationHandler = null;
+    }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+
+    if (this.cy) {
+      this.cy.destroy();
+      this.cy = null;
+    }
   }
 
   private transformDataToElements(): CyElement[] {
