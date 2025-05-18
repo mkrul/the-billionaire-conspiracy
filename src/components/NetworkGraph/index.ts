@@ -112,18 +112,37 @@ export class NetworkGraph {
 
     // Handle each section - hide if empty
     const sections = [
-      { id: 'modal-influence', content: influence },
-      { id: 'modal-ventures', content: ventures },
-      { id: 'modal-connections', content: connections },
+      { id: 'modal-influence', content: influence, isList: true },
+      { id: 'modal-ventures', content: ventures, isList: true },
+      { id: 'modal-connections', content: connections, isList: false },
     ];
 
-    sections.forEach(({ id, content }) => {
-      const section = document.getElementById(id)?.closest('.modal-section');
-      if (section) {
-        const contentElement = document.getElementById(id);
-        if (contentElement) {
-          contentElement.textContent = content;
-          (section as HTMLElement).style.display = content.trim() ? 'block' : 'none';
+    sections.forEach(({ id, content, isList }) => {
+      const sectionElement = document
+        .getElementById(id)
+        ?.closest('.modal-section') as HTMLElement | null;
+      if (!sectionElement) return;
+
+      const contentElement = document.getElementById(id);
+      if (contentElement) {
+        if (content.trim()) {
+          if (isList) {
+            contentElement.innerHTML = '';
+            const ul = document.createElement('ul');
+            const items = content.split(';').filter((item: string) => item.trim());
+            items.forEach((item: string) => {
+              const li = document.createElement('li');
+              li.textContent = item.trim();
+              ul.appendChild(li);
+            });
+            contentElement.appendChild(ul);
+          } else {
+            contentElement.textContent = content;
+          }
+          sectionElement.style.display = 'block';
+        } else {
+          contentElement.innerHTML = '';
+          sectionElement.style.display = 'none';
         }
       }
     });
