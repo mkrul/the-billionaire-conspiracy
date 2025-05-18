@@ -28,10 +28,124 @@
         #network-graph * {
             pointer-events: auto;
         }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #444;
+            width: 80%;
+            max-width: 700px;
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .modal-section {
+            margin-bottom: 15px;
+        }
+
+        .modal-section h3 {
+            margin: 0 0 10px 0;
+            color: #ccc;
+            font-size: 18px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+
+        .modal-section p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .quote-list {
+            font-style: italic;
+            padding-left: 20px;
+        }
+
+        .quote-list li {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div id="network-graph"></div>
+
+    <!-- Modal -->
+    <div id="node-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <img id="modal-image" src="" alt="Person Image">
+                <h2 id="modal-name"></h2>
+            </div>
+
+            <div class="modal-section">
+                <h3>Influence</h3>
+                <p id="modal-influence"></p>
+            </div>
+
+            <div class="modal-section">
+                <h3>Ventures</h3>
+                <p id="modal-ventures"></p>
+            </div>
+
+            <div class="modal-section">
+                <h3>Connections</h3>
+                <p id="modal-connections"></p>
+            </div>
+
+            <div class="modal-section">
+                <h3>Quotes</h3>
+                <ul id="modal-quotes" class="quote-list"></ul>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { NetworkGraph } from '@/components/NetworkGraph';
 

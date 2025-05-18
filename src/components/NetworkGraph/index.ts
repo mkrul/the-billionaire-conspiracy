@@ -14,6 +14,8 @@ type CyElement = {
     image?: string;
     quotes?: string;
     ventures?: string;
+    influence?: string;
+    connections?: string;
   };
   group?: 'nodes' | 'edges';
   selectable?: boolean;
@@ -62,6 +64,8 @@ export class NetworkGraph {
   private resizeObserver: ResizeObserver | null = null;
   private resizeHandler: (() => void) | null = null;
   private orientationHandler: (() => void) | null = null;
+  private modal: HTMLElement | null = null;
+  private modalCloseBtn: HTMLElement | null = null;
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -69,6 +73,72 @@ export class NetworkGraph {
       throw new Error(`Container with id "${containerId}" not found`);
     }
     this.container = container;
+
+    // Get modal elements
+    this.modal = document.getElementById('node-modal');
+    this.modalCloseBtn = this.modal?.querySelector('.close') || null;
+
+    // Setup modal close button
+    if (this.modalCloseBtn) {
+      this.modalCloseBtn.addEventListener('click', () => this.closeModal());
+    }
+
+    // Close modal when clicking outside
+    if (this.modal) {
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) {
+          this.closeModal();
+        }
+      });
+    }
+  }
+
+  private showModal(node: CyNode): void {
+    if (!this.modal) return;
+
+    const name = node.data('label') || '';
+    const image = node.data('image') || '';
+    const influence = node.data('influence') || '';
+    const ventures = node.data('ventures') || '';
+    const connections = node.data('connections') || '';
+    const quotes = node.data('quotes') || '';
+
+    // Update modal content
+    const modalName = document.getElementById('modal-name');
+    if (modalName) modalName.textContent = name;
+
+    const modalImage = document.getElementById('modal-image') as HTMLImageElement;
+    if (modalImage) modalImage.src = image;
+
+    const modalInfluence = document.getElementById('modal-influence');
+    if (modalInfluence) modalInfluence.textContent = influence;
+
+    const modalVentures = document.getElementById('modal-ventures');
+    if (modalVentures) modalVentures.textContent = ventures;
+
+    const modalConnections = document.getElementById('modal-connections');
+    if (modalConnections) modalConnections.textContent = connections;
+
+    // Handle quotes - split by | and create list items
+    const modalQuotes = document.getElementById('modal-quotes');
+    if (modalQuotes) {
+      modalQuotes.innerHTML = '';
+      const quoteItems = quotes.split('|').filter((q) => q.trim());
+      quoteItems.forEach((quote) => {
+        const li = document.createElement('li');
+        li.textContent = quote.trim();
+        modalQuotes.appendChild(li);
+      });
+    }
+
+    // Show modal
+    this.modal.style.display = 'block';
+  }
+
+  private closeModal(): void {
+    if (this.modal) {
+      this.modal.style.display = 'none';
+    }
   }
 
   public async initialize(csvData: string): Promise<void> {
@@ -158,6 +228,9 @@ export class NetworkGraph {
 
       // Highlight all edges connected to this node
       node.connectedEdges().addClass('highlighted');
+
+      // Show modal with node details
+      this.showModal(node);
     });
 
     // Add click handler for background to reset highlighting
@@ -221,6 +294,19 @@ export class NetworkGraph {
       this.resizeObserver = null;
     }
 
+    // Remove modal event listeners
+    if (this.modalCloseBtn) {
+      this.modalCloseBtn.removeEventListener('click', () => this.closeModal());
+    }
+
+    if (this.modal) {
+      this.modal.removeEventListener('click', (e) => {
+        if (e.target === this.modal) {
+          this.closeModal();
+        }
+      });
+    }
+
     if (this.cy) {
       this.cy.destroy();
       this.cy = null;
@@ -244,10 +330,12 @@ export class NetworkGraph {
           image: node.image,
           quotes: node.quotes,
           ventures: node.ventures,
+          influence: node.influence,
+          connections: node.connections,
         },
         group: 'nodes',
         selectable: true,
-        grabbable: true,
+        grabbable: false,
       });
     });
 
