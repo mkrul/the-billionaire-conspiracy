@@ -1,8 +1,8 @@
-import cytoscape, { Core, CytoscapeOptions } from 'cytoscape';
-import { NetworkData } from './types/network';
+import cytoscape from 'cytoscape';
+import { NetworkData, NetworkEdge, NetworkNode } from './types/network';
 import { transformCSVToNetworkData } from './utils/dataTransformer';
 
-async function initializeNetwork(): Promise<Core> {
+async function initializeNetwork() {
   // Fetch and transform the CSV data
   const response = await fetch('/network_graph_relationships.csv');
   const csvData = await response.text();
@@ -10,21 +10,21 @@ async function initializeNetwork(): Promise<Core> {
 
   // Transform network data into Cytoscape format
   const elements = {
-    nodes: networkData.nodes.map((node) => ({
+    nodes: networkData.nodes.map((node: NetworkNode) => ({
       data: {
         ...node,
         label: node.name,
       },
     })),
-    edges: networkData.edges.map((edge) => ({
+    edges: networkData.edges.map((edge: NetworkEdge) => ({
       data: {
         ...edge,
-        label: edge.amount || '',
+        label: edge.relationship || '',
       },
     })),
   };
 
-  const config: CytoscapeOptions = {
+  const config = {
     container: document.getElementById('cy'),
     elements,
     style: [
@@ -61,7 +61,7 @@ async function initializeNetwork(): Promise<Core> {
           'target-arrow-color': '#999',
           'target-arrow-shape': 'triangle',
           'curve-style': 'bezier',
-          label: 'data(amount)',
+          label: 'data(relationship)',
           'font-size': 8,
           'text-rotation': 'autorotate',
         },
@@ -90,39 +90,76 @@ async function initializeNetwork(): Promise<Core> {
     ],
     layout: {
       name: 'cose',
-      animate: true,
+      animate: false,
       animationDuration: 1000,
       nodeDimensionsIncludeLabels: true,
       padding: 50,
+      idealEdgeLength: 100,
+      nodeOverlap: 20,
+      refresh: 20,
+      fit: true,
+      randomize: false,
+      componentSpacing: 100,
+      nodeRepulsion: 400000,
+      edgeElasticity: 100,
+      nestingFactor: 5,
+      gravity: 80,
+      numIter: 1000,
+      initialTemp: 200,
+      coolingFactor: 0.95,
+      minTemp: 1.0,
     },
+    zoomingEnabled: false,
+    userZoomingEnabled: false,
+    minZoom: 0.1,
+    maxZoom: 4,
+    panningEnabled: true,
+    userPanningEnabled: true,
   };
 
-  // Add error handling for container initialization
   const container = document.getElementById('cy');
   if (!container) {
     throw new Error('Cytoscape container element not found');
   }
 
-  const cy: Core = cytoscape(config);
+  const cy = cytoscape(config);
 
-  // Add hover effect
-  cy.on('mouseover', 'node', (event) => {
+  cy.one('layoutstop', () => {
+    cy.fit(undefined, 50);
+    cy.center();
+
+    cy.zoomingEnabled(true);
+    cy.userZoomingEnabled(true);
+
+    if (config.layout && typeof config.layout === 'object') {
+      const layoutConfig = cy.layout({
+        ...config.layout,
+        name: 'cose',
+        animate: true,
+        fit: false,
+      });
+      if (layoutConfig && typeof layoutConfig.run === 'function') {
+        layoutConfig.run();
+      }
+    }
+
+    console.log('Layout complete, zooming enabled.');
+  });
+
+  cy.on('mouseover', 'node', (event: any) => {
     const node = event.target;
     const quotes = node.data('quotes');
     if (quotes?.length) {
-      // TODO: Show tooltip with first quote
       console.log(quotes[0]);
     }
   });
 
-  // Log initialization
   console.log(`Cytoscape.js initialized successfully - Version: ${cy.version()}`);
   console.log(`Network loaded with ${cy.nodes().length} nodes and ${cy.edges().length} edges`);
 
   return cy;
 }
 
-// Initialize the network when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   initializeNetwork().catch((error) => {
     console.error('Failed to initialize network:', error);
