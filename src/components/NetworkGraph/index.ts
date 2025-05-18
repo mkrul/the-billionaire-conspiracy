@@ -123,7 +123,7 @@ export class NetworkGraph {
         const contentElement = document.getElementById(id);
         if (contentElement) {
           contentElement.textContent = content;
-          section.style.display = content.trim() ? 'block' : 'none';
+          (section as HTMLElement).style.display = content.trim() ? 'block' : 'none';
         }
       }
     });
@@ -141,9 +141,9 @@ export class NetworkGraph {
           li.textContent = `"${quote.trim()}"`;
           modalQuotes.appendChild(li);
         });
-        quotesSection.style.display = 'block';
+        (quotesSection as HTMLElement).style.display = 'block';
       } else {
-        quotesSection.style.display = 'none';
+        (quotesSection as HTMLElement).style.display = 'none';
       }
     }
 
@@ -161,9 +161,6 @@ export class NetworkGraph {
 
   public async initialize(csvData: string): Promise<void> {
     this.data = parseCSVData(csvData);
-
-    // Log the first few nodes to check image paths
-    console.log('Sample nodes:', this.data.nodes.slice(0, 3));
 
     const isMobile = window.innerWidth < 768;
 
