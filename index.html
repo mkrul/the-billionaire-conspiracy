@@ -42,9 +42,15 @@
             background-color: rgba(0, 0, 0, 0.7);
         }
 
+        /* When modal is active, use flexbox for centering */
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .modal-content {
             background-color: #1a1a1a;
-            margin: 5% auto;
             padding: 20px;
             border: 1px solid #444;
             width: 80%;
@@ -52,6 +58,8 @@
             color: #fff;
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            /* Remove margin since flexbox will handle centering */
+            margin: 0;
         }
 
         .close {

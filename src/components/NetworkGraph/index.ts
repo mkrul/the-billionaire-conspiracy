@@ -123,21 +123,23 @@ export class NetworkGraph {
     const modalQuotes = document.getElementById('modal-quotes');
     if (modalQuotes) {
       modalQuotes.innerHTML = '';
-      const quoteItems = quotes.split('|').filter((q) => q.trim());
-      quoteItems.forEach((quote) => {
+      const quoteItems = quotes.split('|').filter((q: string) => q.trim());
+      quoteItems.forEach((quote: string) => {
         const li = document.createElement('li');
         li.textContent = quote.trim();
         modalQuotes.appendChild(li);
       });
     }
 
-    // Show modal
-    this.modal.style.display = 'block';
+    // Show modal with flexbox centering
+    this.modal.style.display = 'flex';
+    this.modal.classList.add('active');
   }
 
   private closeModal(): void {
     if (this.modal) {
       this.modal.style.display = 'none';
+      this.modal.classList.remove('active');
     }
   }
 
