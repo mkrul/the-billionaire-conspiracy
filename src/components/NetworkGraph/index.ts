@@ -110,25 +110,41 @@ export class NetworkGraph {
     const modalImage = document.getElementById('modal-image') as HTMLImageElement;
     if (modalImage) modalImage.src = image;
 
-    const modalInfluence = document.getElementById('modal-influence');
-    if (modalInfluence) modalInfluence.textContent = influence;
+    // Handle each section - hide if empty
+    const sections = [
+      { id: 'modal-influence', content: influence },
+      { id: 'modal-ventures', content: ventures },
+      { id: 'modal-connections', content: connections },
+    ];
 
-    const modalVentures = document.getElementById('modal-ventures');
-    if (modalVentures) modalVentures.textContent = ventures;
+    sections.forEach(({ id, content }) => {
+      const section = document.getElementById(id)?.closest('.modal-section');
+      if (section) {
+        const contentElement = document.getElementById(id);
+        if (contentElement) {
+          contentElement.textContent = content;
+          section.style.display = content.trim() ? 'block' : 'none';
+        }
+      }
+    });
 
-    const modalConnections = document.getElementById('modal-connections');
-    if (modalConnections) modalConnections.textContent = connections;
-
-    // Handle quotes - split by | and create list items
+    // Handle quotes section
+    const quotesSection = document.getElementById('modal-quotes')?.closest('.modal-section');
     const modalQuotes = document.getElementById('modal-quotes');
-    if (modalQuotes) {
+    if (modalQuotes && quotesSection) {
       modalQuotes.innerHTML = '';
       const quoteItems = quotes.split('|').filter((q: string) => q.trim());
-      quoteItems.forEach((quote: string) => {
-        const li = document.createElement('li');
-        li.textContent = quote.trim();
-        modalQuotes.appendChild(li);
-      });
+
+      if (quoteItems.length > 0) {
+        quoteItems.forEach((quote: string) => {
+          const li = document.createElement('li');
+          li.textContent = `"${quote.trim()}"`;
+          modalQuotes.appendChild(li);
+        });
+        quotesSection.style.display = 'block';
+      } else {
+        quotesSection.style.display = 'none';
+      }
     }
 
     // Show modal with flexbox centering
