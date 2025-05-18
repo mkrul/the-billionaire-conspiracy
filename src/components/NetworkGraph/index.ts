@@ -103,6 +103,23 @@ export class NetworkGraph {
     const connections = node.data('connections') || '';
     const quotes = node.data('quotes') || '';
 
+    const ventureColors: Record<string, string> = {
+      SpaceX: '#000080',
+      Anduril: '#008000',
+      Palantir: '#800080',
+      Meta: '#e39400',
+      Rumble: '#a1522d',
+      Paypal: '#00c2c2',
+      Praxis: '#999900',
+      Urbit: '#808080',
+      Linkedin: '#4783b5',
+      OpenAI: '#008080',
+      Coinbase: '#2fc22f',
+      'Heritage Foundation': '#800000',
+      X: '#000000',
+      'Cambridge Analytica': '#d900d9',
+    };
+
     // Update modal content
     const modalName = document.getElementById('modal-name');
     if (modalName) modalName.textContent = name;
@@ -123,10 +140,28 @@ export class NetworkGraph {
         ?.closest('.modal-section') as HTMLElement | null;
       if (!sectionElement) return;
 
-      const contentElement = document.getElementById(id);
+      const contentElement = document.getElementById(id) as HTMLElement | null;
       if (contentElement) {
         if (content.trim()) {
-          if (isList) {
+          if (id === 'modal-ventures') {
+            contentElement.innerHTML = '';
+            contentElement.style.display = 'flex';
+            contentElement.style.flexWrap = 'wrap';
+            contentElement.style.gap = '8px';
+
+            const items = content.split(';').filter((item: string) => item.trim());
+            items.forEach((itemText: string) => {
+              const ventureName = itemText.trim();
+              const pill = document.createElement('div');
+              pill.textContent = ventureName;
+              pill.style.backgroundColor = ventureColors[ventureName] || '#6c757d';
+              pill.style.color = 'white';
+              pill.style.padding = '5px 10px';
+              pill.style.borderRadius = '15px';
+              contentElement.appendChild(pill);
+            });
+            sectionElement.style.display = 'block';
+          } else if (isList) {
             contentElement.innerHTML = '';
             const ul = document.createElement('ul');
             const items = content.split(';').filter((item: string) => item.trim());
