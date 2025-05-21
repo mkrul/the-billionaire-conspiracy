@@ -63,6 +63,7 @@
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #444 #1a1a1a;
+            position: relative;
         }
 
         /* Webkit scrollbar styling (Chrome, Safari, Edge) */
@@ -90,10 +91,14 @@
 
         /* Ensure the close button stays visible */
         .close {
-            position: sticky;
-            top: 0;
-            right: 0;
+            position: absolute;
+            top: 10px;
+            right: 15px;
             z-index: 2;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .close:hover {
