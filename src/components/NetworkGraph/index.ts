@@ -105,15 +105,23 @@ export class NetworkGraph {
     const baseNodeStyle = defaultStyles.find((s) => s.selector === 'node');
     const defaultBorderColor = baseNodeStyle?.style?.['border-color'] || '#666';
     const defaultBorderOpacity = baseNodeStyle?.style?.['border-opacity'] || 0.5;
-    // We no longer set defaultBorderWidth inline during reset for all nodes.
+
+    const baseEdgeStyle = defaultStyles.find((s) => s.selector === 'edge');
+    const defaultEdgeColor = baseEdgeStyle?.style?.['line-color'] || '#444';
+    const defaultEdgeWidth = baseEdgeStyle?.style?.width || 2;
+
+    // Reset all edges to default style first
+    this.cy.edges().forEach((edge) => {
+      edge.style('line-color', defaultEdgeColor);
+      edge.style('width', defaultEdgeWidth);
+      // Consider adding/removing a class like 'highlight-venture-edge' if preferred
+    });
 
     // Reset all nodes: remove highlight class and reset inline-styled properties
     this.cy.nodes().forEach((node: CyNode) => {
       node.removeClass('highlight-venture-affiliated');
-      // Reset only the properties that are also set inline during highlighting
       node.style('border-color', defaultBorderColor);
       node.style('border-opacity', defaultBorderOpacity);
-      // DO NOT set 'border-width' inline here; let CSS classes control it.
     });
 
     // Remove 'selected' class from all legend items
@@ -129,17 +137,36 @@ export class NetworkGraph {
         (s) => s.selector === 'node.highlight-venture-affiliated'
       );
       const highlightedBorderOpacity = highlightedStyle?.style?.['border-opacity'] || 1;
-      // The 'border-width' will come from the 'highlight-venture-affiliated' class (e.g., '18px')
 
+      // Collection to store nodes affiliated with the selected venture
+      const ventureAffiliatedNodesCollection = this.cy.collection();
+
+      // Identify and style affiliated NODES, and add them to our collection
       this.cy.nodes().forEach((node: CyNode) => {
         const nodeVentures = node.data('ventures') as string | undefined;
         if (nodeVentures) {
           const ventureList = nodeVentures.split(';').map((v) => v.trim());
           if (ventureList.includes(ventureName)) {
-            node.addClass('highlight-venture-affiliated'); // This class provides the 18px border-width
-            node.style('border-color', ventureColor); // Set specific venture color
-            node.style('border-opacity', highlightedBorderOpacity); // Set highlight opacity
+            node.addClass('highlight-venture-affiliated');
+            node.style('border-color', ventureColor);
+            node.style('border-opacity', highlightedBorderOpacity);
+            ventureAffiliatedNodesCollection.merge(node);
           }
+        }
+      });
+
+      // Highlight EDGES connecting two venture-affiliated nodes
+      this.cy.edges().forEach((edge) => {
+        const sourceNode = edge.source();
+        const targetNode = edge.target();
+
+        // Check if both source and target are in the collection of affiliated nodes
+        if (
+          ventureAffiliatedNodesCollection.anySame(sourceNode) &&
+          ventureAffiliatedNodesCollection.anySame(targetNode)
+        ) {
+          edge.style('line-color', ventureColor);
+          edge.style('width', 3); // Make highlighted edges slightly thicker
         }
       });
 
