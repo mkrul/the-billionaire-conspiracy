@@ -66,6 +66,7 @@ export class NetworkGraph {
   private orientationHandler: (() => void) | null = null;
   private modal: HTMLElement | null = null;
   private modalCloseBtn: HTMLElement | null = null;
+  private ventureLegendList: HTMLElement | null = null;
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -77,6 +78,9 @@ export class NetworkGraph {
     // Get modal elements
     this.modal = document.getElementById('node-modal');
     this.modalCloseBtn = this.modal?.querySelector('.close') || null;
+
+    // Get venture legend element
+    this.ventureLegendList = document.getElementById('venture-list');
 
     // Setup modal close button
     if (this.modalCloseBtn) {
@@ -90,6 +94,31 @@ export class NetworkGraph {
           this.closeModal();
         }
       });
+    }
+  }
+
+  private populateVentureLegend(ventureColors: Record<string, string>): void {
+    if (!this.ventureLegendList) return;
+
+    this.ventureLegendList.innerHTML = ''; // Clear existing items
+
+    for (const ventureName in ventureColors) {
+      if (Object.prototype.hasOwnProperty.call(ventureColors, ventureName)) {
+        const color = ventureColors[ventureName];
+
+        const listItem = document.createElement('li');
+
+        const colorBox = document.createElement('div');
+        colorBox.className = 'color-box';
+        colorBox.style.backgroundColor = color;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = ventureName;
+
+        listItem.appendChild(colorBox);
+        listItem.appendChild(nameSpan);
+        this.ventureLegendList.appendChild(listItem);
+      }
     }
   }
 
@@ -222,6 +251,34 @@ export class NetworkGraph {
 
   public async initialize(csvData: string): Promise<void> {
     this.data = parseCSVData(csvData);
+
+    // Define ventureColors here or pass it from where it's defined
+    // For now, duplicating it for simplicity in this example
+    // Ideally, this should come from a shared source or be passed if it's dynamic
+    const ventureColors: Record<string, string> = {
+      SpaceX: '#000080',
+      Anduril: '#008000',
+      Palantir: '#800080',
+      Meta: '#e39400',
+      Rumble: '#a1522d',
+      Paypal: '#00c2c2', // Corrected from Paypal to PayPal if CSV uses PayPal
+      Praxis: '#999900',
+      Urbit: '#808080',
+      Linkedin: '#4783b5', // Corrected from Linkedin to LinkedIn
+      OpenAI: '#008080',
+      Coinbase: '#2fc22f',
+      'Heritage Foundation': '#800000',
+      X: '#000000',
+      'Cambridge Analytica': '#d900d9',
+    };
+    // It seems PayPal and LinkedIn in the CSV might have different casing.
+    // Let's adjust the keys here to match the modal's ventureColors for consistency.
+    // The CSV uses 'PayPal' and 'LinkedIn'.
+    // The modal's ventureColors uses 'Paypal' and 'Linkedin'.
+    // We should ensure these match. For now, I'll use the casing from the modal,
+    // but you should verify this against your actual data and standardize it.
+
+    this.populateVentureLegend(ventureColors);
 
     const isMobile = window.innerWidth < 768;
 

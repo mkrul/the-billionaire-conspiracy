@@ -30,6 +30,48 @@
         pointer-events: auto;
       }
 
+      /* Venture Legend Styles */
+      #venture-legend {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background-color: rgba(26, 26, 26, 0.8); /* Similar to modal */
+        padding: 15px;
+        border-radius: 5px;
+        color: #fff;
+        z-index: 900; /* Below modal, but above graph */
+        max-height: calc(100vh - 40px); /* Adjust as needed */
+        overflow-y: auto;
+        font-size: 14px;
+      }
+
+      #venture-legend h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 16px;
+        border-bottom: 1px solid #444;
+        padding-bottom: 5px;
+      }
+
+      #venture-legend ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      #venture-legend li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      #venture-legend .color-box {
+        width: 15px;
+        height: 15px;
+        margin-right: 10px;
+        border-radius: 3px;
+      }
+
       /* Modal styles */
       .modal {
         display: none;
@@ -164,6 +206,12 @@
     </style>
   </head>
   <body>
+    <div id="venture-legend">
+      <h3>Ventures</h3>
+      <ul id="venture-list">
+        <!-- Venture items will be populated here by JavaScript -->
+      </ul>
+    </div>
     <div id="network-graph"></div>
 
     <!-- Modal -->
