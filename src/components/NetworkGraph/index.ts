@@ -122,7 +122,7 @@ export class NetworkGraph {
 
     // Update modal content
     const modalName = document.getElementById('modal-name');
-    if (modalName) modalName.textContent = name;
+    if (modalName) modalName.innerHTML = name;
 
     const modalImage = document.getElementById('modal-image') as HTMLImageElement;
     if (modalImage) modalImage.src = image;
@@ -153,7 +153,7 @@ export class NetworkGraph {
             items.forEach((itemText: string) => {
               const ventureName = itemText.trim();
               const pill = document.createElement('div');
-              pill.textContent = ventureName;
+              pill.innerHTML = ventureName;
               pill.style.backgroundColor = ventureColors[ventureName] || '#6c757d';
               pill.style.color = 'white';
               pill.style.paddingTop = '6px';
@@ -174,12 +174,12 @@ export class NetworkGraph {
             const items = content.split(';').filter((item: string) => item.trim());
             items.forEach((item: string) => {
               const li = document.createElement('li');
-              li.textContent = item.trim();
+              li.innerHTML = item.trim();
               ul.appendChild(li);
             });
             contentElement.appendChild(ul);
           } else {
-            contentElement.textContent = content;
+            contentElement.innerHTML = content;
           }
           sectionElement.style.display = 'block';
         } else {
@@ -199,7 +199,7 @@ export class NetworkGraph {
       if (quoteItems.length > 0) {
         quoteItems.forEach((quote: string) => {
           const li = document.createElement('li');
-          li.textContent = `"${quote.trim()}"`;
+          li.innerHTML = `"${quote.trim()}"`;
           modalQuotes.appendChild(li);
         });
         (quotesSection as HTMLElement).style.display = 'block';
