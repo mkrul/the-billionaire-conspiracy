@@ -102,24 +102,26 @@ export class NetworkGraph {
   private resetAllHighlights(): void {
     if (!this.cy) return;
 
-    const baseNodeStyle = defaultStyles.find((s) => s.selector === 'node');
-    const defaultNodeBorderColor = baseNodeStyle?.style?.['border-color'] || '#666';
-    const defaultNodeBorderOpacity = baseNodeStyle?.style?.['border-opacity'] || 0.5;
-
-    const baseEdgeStyle = defaultStyles.find((s) => s.selector === 'edge');
-    const defaultEdgeColor = baseEdgeStyle?.style?.['line-color'] || '#444';
-    const defaultEdgeWidth = baseEdgeStyle?.style?.width || 2;
-
     this.cy.nodes().forEach((node: CyNode) => {
       node.removeClass('highlight-venture-affiliated');
-      node.style('border-color', defaultNodeBorderColor);
-      node.style('border-opacity', defaultNodeBorderOpacity);
+      node.removeClass('highlighted-node'); // Class for click highlight
+
+      // Remove direct style overrides to allow stylesheet-defined styles to apply.
+      // This ensures nodes revert to their base style (e.g., from 'node' selector)
+      // or styles from other classes if any.
+      node.removeStyle('background-color');
+      node.removeStyle('border-color');
+      node.removeStyle('border-width');
+      node.removeStyle('border-opacity');
     });
 
     this.cy.edges().forEach((edge) => {
-      edge.removeClass('highlighted');
-      edge.style('line-color', defaultEdgeColor);
-      edge.style('width', defaultEdgeWidth);
+      edge.removeClass('highlighted'); // Class for click highlight
+
+      // Remove direct style overrides for edges.
+      edge.removeStyle('line-color');
+      edge.removeStyle('width');
+      // Add other edge properties here if they are ever directly styled elsewhere.
     });
 
     if (this.ventureLegendList) {
@@ -449,10 +451,11 @@ export class NetworkGraph {
 
     // Add click handler for nodes
     this.cy.on('tap', 'node', (event: { target: CyNode }) => {
-      this.resetAllHighlights(); // Clear any venture or previous person highlight
+      this.resetAllHighlights(); // Now correctly removes overrides
 
       const node = event.target;
-      node.connectedEdges().addClass('highlighted'); // Highlight current person's connections in red
+      node.addClass('highlighted-node'); // Apply highlight class to the clicked node
+      node.connectedEdges().addClass('highlighted'); // Apply highlight class to connected edges
       this.showModal(node);
     });
 
@@ -638,6 +641,10 @@ function getResponsiveStyles(isSmallViewport: boolean) {
         selector: 'edge.highlighted',
         style: { 'line-color': '#ff0000', width: 3 },
       },
+      {
+        selector: 'node.highlighted-node',
+        style: { 'background-color': '#ff0000', 'border-color': '#cc0000', 'border-width': 2 },
+      },
     ];
   }
 
@@ -671,8 +678,14 @@ function getResponsiveStyles(isSmallViewport: boolean) {
       style: {
         'line-color': '#ff0000', // Red color
         width: 3, // Slightly thicker
-        // Cytoscape should inherit other edge properties (like curve-style)
-        // from the base 'edge' selector unless overridden here.
+      },
+    },
+    {
+      selector: 'node.highlighted-node', // Style for the highlighted node
+      style: {
+        'background-color': '#ff0000', // Red background
+        'border-color': '#cc0000', // Darker red border for visibility
+        'border-width': 2, // Ensure border is visible
       },
     },
   ];
