@@ -223,10 +223,14 @@
         }
 
         #venture-legend ul {
-          /* Potentially add more styling for horizontal layout if needed */
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px; /* Provides 8px spacing for rows and columns */
         }
          #venture-legend li {
-            margin-bottom: 6px; /* Slightly reduced margin */
+            flex-basis: calc((100% - (3 * 8px)) / 4); /* 4 columns with 8px gap: 25% - 6px */
+            box-sizing: border-box; /* Ensures padding/border are included in width calculation */
+            /* display: flex; and align-items: center; are inherited from general styles for li content */
         }
       }
     </style>
