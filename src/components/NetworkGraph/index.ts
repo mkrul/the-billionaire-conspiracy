@@ -325,6 +325,42 @@ export class NetworkGraph {
 
     this.cy = cytoscape(config);
 
+    // Fit the graph once the layout is ready
+    const layout = this.cy.layout(config.layout);
+    layout.on('layoutready', () => {
+      const currentWidth = window.innerWidth;
+      const fitPadding = currentWidth < 768 ? 45 : 75;
+      this.cy.fit({ padding: fitPadding });
+      console.log('Layout Ready Fit Complete:');
+      console.log(
+        '  Container Dimensions:',
+        this.container.offsetWidth,
+        'x',
+        this.container.offsetHeight
+      );
+      console.log('  Graph Extent (after fit):', this.cy.extent());
+      console.log('  Graph Zoom (after fit):', this.cy.zoom());
+      console.log('  Graph Pan (after fit):', this.cy.pan());
+
+      if (currentWidth <= 500) {
+        const currentPan = this.cy.pan();
+        this.cy.pan({ x: currentPan.x, y: currentPan.y - 70 });
+        console.log('  Graph Pan (after 500px adjustment):', this.cy.pan());
+      }
+    });
+    layout.run(); // Run the layout
+
+    // This log might show pre-fit state or state before layout is fully ready
+    console.log('Initial Cytoscape setup complete (pre-layout fit):');
+    console.log(
+      '  Container Dimensions (at setup):',
+      this.container.offsetWidth,
+      'x',
+      this.container.offsetHeight
+    );
+    // Logging extent, zoom, pan here might be misleading as layout isn't finished.
+    // The 'layoutready' event provides more accurate post-layout values.
+
     // Enable pan and zoom
     this.cy.panningEnabled(true);
     this.cy.zoomingEnabled(true);
@@ -382,7 +418,31 @@ export class NetworkGraph {
     this.resizeHandler = () => {
       if (this.cy) {
         this.cy.resize();
-        this.cy.fit();
+        // Add a small delay before fitting
+        setTimeout(() => {
+          const currentWidth = window.innerWidth;
+          const isMobileLike = currentWidth < 768;
+          const fitPadding = isMobileLike ? 45 : 75;
+
+          this.cy.fit({ padding: fitPadding });
+
+          console.log('Resize Fit Complete:');
+          console.log(
+            '  Container Dimensions:',
+            this.container.offsetWidth,
+            'x',
+            this.container.offsetHeight
+          );
+          console.log('  Graph Extent (after fit):', this.cy.extent());
+          console.log('  Graph Zoom (after fit):', this.cy.zoom());
+          console.log('  Graph Pan (after fit):', this.cy.pan());
+
+          if (currentWidth <= 500) {
+            const currentPan = this.cy.pan();
+            this.cy.pan({ x: currentPan.x, y: currentPan.y - 70 });
+            console.log('  Graph Pan (after 500px adjustment):', this.cy.pan());
+          }
+        }, 100); // 100ms delay
       }
     };
 
