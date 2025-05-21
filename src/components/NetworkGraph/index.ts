@@ -68,6 +68,7 @@ export class NetworkGraph {
   private modalCloseBtn: HTMLElement | null = null;
   private ventureLegendList: HTMLElement | null = null;
   private selectedVenture: string | null = null;
+  private ventureColors: Record<string, string> = {};
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -101,8 +102,19 @@ export class NetworkGraph {
   private highlightNodesByVenture(ventureName: string | null): void {
     if (!this.cy) return;
 
-    // Remove highlight from all nodes
-    this.cy.nodes().removeClass('highlight-venture-affiliated');
+    const baseNodeStyle = defaultStyles.find((s) => s.selector === 'node');
+    const defaultBorderColor = baseNodeStyle?.style?.['border-color'] || '#666';
+    const defaultBorderOpacity = baseNodeStyle?.style?.['border-opacity'] || 0.5;
+    // We no longer set defaultBorderWidth inline during reset for all nodes.
+
+    // Reset all nodes: remove highlight class and reset inline-styled properties
+    this.cy.nodes().forEach((node: CyNode) => {
+      node.removeClass('highlight-venture-affiliated');
+      // Reset only the properties that are also set inline during highlighting
+      node.style('border-color', defaultBorderColor);
+      node.style('border-opacity', defaultBorderOpacity);
+      // DO NOT set 'border-width' inline here; let CSS classes control it.
+    });
 
     // Remove 'selected' class from all legend items
     if (this.ventureLegendList) {
@@ -110,13 +122,23 @@ export class NetworkGraph {
       legendItems.forEach((item) => item.classList.remove('selected'));
     }
 
-    if (ventureName) {
+    if (ventureName && this.ventureColors[ventureName]) {
+      const ventureColor = this.ventureColors[ventureName];
+
+      const highlightedStyle = defaultStyles.find(
+        (s) => s.selector === 'node.highlight-venture-affiliated'
+      );
+      const highlightedBorderOpacity = highlightedStyle?.style?.['border-opacity'] || 1;
+      // The 'border-width' will come from the 'highlight-venture-affiliated' class (e.g., '18px')
+
       this.cy.nodes().forEach((node: CyNode) => {
         const nodeVentures = node.data('ventures') as string | undefined;
         if (nodeVentures) {
           const ventureList = nodeVentures.split(';').map((v) => v.trim());
           if (ventureList.includes(ventureName)) {
-            node.addClass('highlight-venture-affiliated');
+            node.addClass('highlight-venture-affiliated'); // This class provides the 18px border-width
+            node.style('border-color', ventureColor); // Set specific venture color
+            node.style('border-opacity', highlightedBorderOpacity); // Set highlight opacity
           }
         }
       });
@@ -179,23 +201,6 @@ export class NetworkGraph {
     const connections = node.data('connections') || '';
     const quotes = node.data('quotes') || '';
 
-    const ventureColors: Record<string, string> = {
-      SpaceX: '#000080',
-      Anduril: '#008000',
-      Palantir: '#800080',
-      Meta: '#e39400',
-      Rumble: '#a1522d',
-      Paypal: '#00c2c2',
-      Praxis: '#999900',
-      Urbit: '#808080',
-      Linkedin: '#4783b5',
-      OpenAI: '#008080',
-      Coinbase: '#2fc22f',
-      'Heritage Foundation': '#800000',
-      X: '#000000',
-      'Cambridge Analytica': '#d900d9',
-    };
-
     // Update modal content
     const modalName = document.getElementById('modal-name');
     if (modalName) modalName.innerHTML = name;
@@ -227,10 +232,10 @@ export class NetworkGraph {
 
             const items = content.split(';').filter((item: string) => item.trim());
             items.forEach((itemText: string) => {
-              const ventureName = itemText.trim();
+              const ventureNameTrimmed = itemText.trim();
               const pill = document.createElement('div');
-              pill.innerHTML = ventureName;
-              pill.style.backgroundColor = ventureColors[ventureName] || '#6c757d';
+              pill.innerHTML = ventureNameTrimmed;
+              pill.style.backgroundColor = this.ventureColors[ventureNameTrimmed] || '#6c757d';
               pill.style.color = 'white';
               pill.style.paddingTop = '6px';
               pill.style.paddingBottom = '4px';
@@ -299,10 +304,7 @@ export class NetworkGraph {
   public async initialize(csvData: string): Promise<void> {
     this.data = parseCSVData(csvData);
 
-    // Define ventureColors here or pass it from where it's defined
-    // For now, duplicating it for simplicity in this example
-    // Ideally, this should come from a shared source or be passed if it's dynamic
-    const ventureColors: Record<string, string> = {
+    this.ventureColors = {
       SpaceX: '#000080',
       Anduril: '#008000',
       Palantir: '#800080',
@@ -318,14 +320,8 @@ export class NetworkGraph {
       X: '#000000',
       'Cambridge Analytica': '#d900d9',
     };
-    // It seems PayPal and LinkedIn in the CSV might have different casing.
-    // Let's adjust the keys here to match the modal's ventureColors for consistency.
-    // The CSV uses 'PayPal' and 'LinkedIn'.
-    // The modal's ventureColors uses 'Paypal' and 'Linkedin'.
-    // We should ensure these match. For now, I'll use the casing from the modal,
-    // but you should verify this against your actual data and standardize it.
 
-    this.populateVentureLegend(ventureColors);
+    this.populateVentureLegend(this.ventureColors);
 
     const initialWidth = window.innerWidth;
     const isSmallInitially = initialWidth <= 500;

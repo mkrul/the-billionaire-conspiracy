@@ -28,7 +28,7 @@ export const defaultStyles = [
   {
     selector: 'node.highlight-venture-affiliated',
     style: {
-      'border-width': '4px',
+      'border-width': '18px',
       'border-color': '#00FFFF',
       'border-style': 'solid',
       'border-opacity': 1,
