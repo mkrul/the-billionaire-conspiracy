@@ -156,11 +156,15 @@ export class NetworkGraph {
               pill.textContent = ventureName;
               pill.style.backgroundColor = ventureColors[ventureName] || '#6c757d';
               pill.style.color = 'white';
-              pill.style.padding = '5px 10px';
+              pill.style.paddingTop = '6px';
+              pill.style.paddingBottom = '4px';
+              pill.style.paddingLeft = '10px';
+              pill.style.paddingRight = '10px';
               pill.style.borderRadius = '15px';
               pill.style.display = 'flex';
               pill.style.alignItems = 'center';
               pill.style.justifyContent = 'center';
+              pill.style.lineHeight = '1';
               contentElement.appendChild(pill);
             });
             sectionElement.style.display = 'block';
