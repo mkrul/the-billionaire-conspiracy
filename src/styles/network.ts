@@ -15,7 +15,7 @@ export const defaultStyles = [
       'background-fit': 'cover',
       'background-width': '100%',
       'background-height': '100%',
-      'border-width': 2,
+      'border-width': 3,
       'border-color': '#666',
       'border-opacity': 0.5,
       color: '#ffffff',

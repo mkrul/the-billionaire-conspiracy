@@ -107,8 +107,6 @@ export class NetworkGraph {
       node.removeClass('highlighted-node'); // Class for click highlight
 
       // Remove direct style overrides to allow stylesheet-defined styles to apply.
-      // This ensures nodes revert to their base style (e.g., from 'node' selector)
-      // or styles from other classes if any.
       node.removeStyle('background-color');
       node.removeStyle('border-color');
       node.removeStyle('border-width');
@@ -121,7 +119,6 @@ export class NetworkGraph {
       // Remove direct style overrides for edges.
       edge.removeStyle('line-color');
       edge.removeStyle('width');
-      // Add other edge properties here if they are ever directly styled elsewhere.
     });
 
     if (this.ventureLegendList) {
@@ -643,7 +640,12 @@ function getResponsiveStyles(isSmallViewport: boolean) {
       },
       {
         selector: 'node.highlighted-node',
-        style: { 'background-color': '#ff0000', 'border-color': '#cc0000', 'border-width': 2 },
+        style: {
+          'background-color': '#ff0000',
+          'border-color': '#ff0000',
+          'border-width': 3,
+          'border-opacity': 1, // Ensure full opacity for the border
+        },
       },
     ];
   }
@@ -684,8 +686,9 @@ function getResponsiveStyles(isSmallViewport: boolean) {
       selector: 'node.highlighted-node', // Style for the highlighted node
       style: {
         'background-color': '#ff0000', // Red background
-        'border-color': '#cc0000', // Darker red border for visibility
-        'border-width': 2, // Ensure border is visible
+        'border-color': '#ff0000', // Darker red border for visibility
+        'border-width': 3, // Increased border width
+        'border-opacity': 1, // Ensure full opacity for the border
       },
     },
   ];
