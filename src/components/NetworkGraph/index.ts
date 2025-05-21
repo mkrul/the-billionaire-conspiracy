@@ -67,6 +67,7 @@ export class NetworkGraph {
   private modal: HTMLElement | null = null;
   private modalCloseBtn: HTMLElement | null = null;
   private ventureLegendList: HTMLElement | null = null;
+  private selectedVenture: string | null = null;
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -97,6 +98,42 @@ export class NetworkGraph {
     }
   }
 
+  private highlightNodesByVenture(ventureName: string | null): void {
+    if (!this.cy) return;
+
+    // Remove highlight from all nodes
+    this.cy.nodes().removeClass('highlight-venture-affiliated');
+
+    // Remove 'selected' class from all legend items
+    if (this.ventureLegendList) {
+      const legendItems = this.ventureLegendList.querySelectorAll('li');
+      legendItems.forEach((item) => item.classList.remove('selected'));
+    }
+
+    if (ventureName) {
+      this.cy.nodes().forEach((node: CyNode) => {
+        const nodeVentures = node.data('ventures') as string | undefined;
+        if (nodeVentures) {
+          const ventureList = nodeVentures.split(';').map((v) => v.trim());
+          if (ventureList.includes(ventureName)) {
+            node.addClass('highlight-venture-affiliated');
+          }
+        }
+      });
+
+      // Add 'selected' class to the clicked legend item
+      if (this.ventureLegendList) {
+        const legendItems = this.ventureLegendList.querySelectorAll('li');
+        legendItems.forEach((item) => {
+          const textContent = item.querySelector('span')?.textContent;
+          if (textContent === ventureName) {
+            item.classList.add('selected');
+          }
+        });
+      }
+    }
+  }
+
   private populateVentureLegend(ventureColors: Record<string, string>): void {
     if (!this.ventureLegendList) return;
 
@@ -117,6 +154,16 @@ export class NetworkGraph {
 
         listItem.appendChild(colorBox);
         listItem.appendChild(nameSpan);
+
+        listItem.addEventListener('click', () => {
+          if (this.selectedVenture === ventureName) {
+            this.selectedVenture = null; // Deselect if clicking the same venture
+          } else {
+            this.selectedVenture = ventureName;
+          }
+          this.highlightNodesByVenture(this.selectedVenture);
+        });
+
         this.ventureLegendList.appendChild(listItem);
       }
     }
@@ -261,10 +308,10 @@ export class NetworkGraph {
       Palantir: '#800080',
       Meta: '#e39400',
       Rumble: '#a1522d',
-      Paypal: '#00c2c2', // Corrected from Paypal to PayPal if CSV uses PayPal
+      Paypal: '#00c2c2',
       Praxis: '#999900',
       Urbit: '#808080',
-      Linkedin: '#4783b5', // Corrected from Linkedin to LinkedIn
+      Linkedin: '#4783b5',
       OpenAI: '#008080',
       Coinbase: '#2fc22f',
       'Heritage Foundation': '#800000',
