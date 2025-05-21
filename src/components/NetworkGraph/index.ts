@@ -158,6 +158,9 @@ export class NetworkGraph {
               pill.style.color = 'white';
               pill.style.padding = '5px 10px';
               pill.style.borderRadius = '15px';
+              pill.style.display = 'flex';
+              pill.style.alignItems = 'center';
+              pill.style.justifyContent = 'center';
               contentElement.appendChild(pill);
             });
             sectionElement.style.display = 'block';
