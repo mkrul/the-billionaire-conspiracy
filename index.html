@@ -60,33 +60,9 @@
         border-radius: 5px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         margin: 0;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: #444 #1a1a1a;
         position: relative;
-      }
-
-      /* Webkit scrollbar styling (Chrome, Safari, Edge) */
-      .modal-content::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .modal-content::-webkit-scrollbar-track {
-        background: #1a1a1a;
-      }
-
-      .modal-content::-webkit-scrollbar-thumb {
-        background-color: #444;
-        border-radius: 4px;
-      }
-
-      /* Ensure the modal header stays visible while scrolling */
-      .modal-header {
-        position: sticky;
-        top: 0;
-        background-color: #1a1a1a;
-        z-index: 1;
-        padding-bottom: 20px;
+        display: flex;
+        flex-direction: column;
       }
 
       /* Ensure the close button stays visible */
@@ -109,6 +85,10 @@
         display: flex;
         align-items: center;
         margin-bottom: 20px;
+        flex-shrink: 0;
+        background-color: #1a1a1a;
+        z-index: 1;
+        padding-bottom: 20px;
       }
 
       .modal-header img {
@@ -124,8 +104,29 @@
         font-size: 24px;
       }
 
+      .modal-body-scrollable {
+        flex-grow: 1;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #444 #1a1a1a;
+      }
+
+      .modal-body-scrollable::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .modal-body-scrollable::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+
+      .modal-body-scrollable::-webkit-scrollbar-thumb {
+        background-color: #444;
+        border-radius: 4px;
+      }
+
       .modal-section {
         margin-bottom: 15px;
+        padding-right: 1rem;
       }
 
       .modal-section h3 {
@@ -166,20 +167,22 @@
                 <span class="close">&times;</span>
             </div>
 
-            <div class="modal-sections">
-              <div class="modal-section">
-                  <h3>Influence</h3>
-                  <p id="modal-influence"></p>
-              </div>
+            <div class="modal-body-scrollable">
+              <div class="modal-sections">
+                <div class="modal-section">
+                    <h3>Influence</h3>
+                    <p id="modal-influence"></p>
+                </div>
 
-              <div class="modal-section">
-                  <h3>Ventures</h3>
-                  <p id="modal-ventures"></p>
-              </div>
+                <div class="modal-section">
+                    <h3>Ventures</h3>
+                    <p id="modal-ventures"></p>
+                </div>
 
-              <div class="modal-section">
-                  <h3>Quotes</h3>
-                  <ul id="modal-quotes" class="quote-list"></ul>
+                <div class="modal-section">
+                    <h3>Quotes</h3>
+                    <ul id="modal-quotes" class="quote-list"></ul>
+                </div>
               </div>
             </div>
         </div>
