@@ -280,40 +280,33 @@ export class NetworkGraph {
 
     this.populateVentureLegend(ventureColors);
 
-    const isMobile = window.innerWidth < 768;
+    const initialWidth = window.innerWidth;
+    const isSmallInitially = initialWidth <= 500;
+    const currentStyles = getResponsiveStyles(isSmallInitially); // This now includes edge.highlighted
 
     const config: CyConfig = {
       container: this.container,
       elements: this.transformDataToElements(),
-      style: [
-        ...defaultStyles,
-        {
-          selector: 'edge.highlighted',
-          style: {
-            'line-color': '#ff0000',
-            width: 3,
-          },
-        },
-      ],
+      style: currentStyles, // Use responsive styles directly
       layout: {
         name: 'cose',
-        idealEdgeLength: isMobile ? 100 : 150,
-        nodeOverlap: isMobile ? 20 : 30,
+        idealEdgeLength: initialWidth < 768 ? 100 : 150, // Example responsive layout param
+        nodeOverlap: initialWidth < 768 ? 20 : 30,
+        padding: initialWidth < 768 ? 30 : 50, // Layout padding
+        gravity: initialWidth < 768 ? 80 : 60,
         refresh: 20,
         fit: true,
-        padding: isMobile ? 30 : 50,
         randomize: false,
-        componentSpacing: isMobile ? 100 : 150,
-        nodeRepulsion: isMobile ? 400000 : 600000,
+        componentSpacing: initialWidth < 768 ? 100 : 150,
+        nodeRepulsion: initialWidth < 768 ? 400000 : 600000,
         edgeElasticity: 100,
         nestingFactor: 5,
-        gravity: isMobile ? 80 : 60,
         numIter: 1000,
         initialTemp: 200,
         coolingFactor: 0.95,
         minTemp: 1.0,
       },
-      minZoom: isMobile ? 0.5 : 1,
+      minZoom: initialWidth < 768 ? 0.5 : 1, // Responsive minZoom
       maxZoom: 3,
       userPanningEnabled: true,
       userZoomingEnabled: true,
@@ -325,10 +318,9 @@ export class NetworkGraph {
 
     this.cy = cytoscape(config);
 
-    // Fit the graph once the layout is ready
     const layout = this.cy.layout(config.layout);
     layout.on('layoutready', () => {
-      const currentWidth = window.innerWidth;
+      const currentWidth = window.innerWidth; // Re-check width
       const fitPadding = currentWidth < 768 ? 45 : 75;
       this.cy.fit({ padding: fitPadding });
       console.log('Layout Ready Fit Complete:');
@@ -348,7 +340,7 @@ export class NetworkGraph {
         console.log('  Graph Pan (after 500px adjustment):', this.cy.pan());
       }
     });
-    layout.run(); // Run the layout
+    layout.run();
 
     // This log might show pre-fit state or state before layout is fully ready
     console.log('Initial Cytoscape setup complete (pre-layout fit):');
@@ -414,16 +406,18 @@ export class NetworkGraph {
   }
 
   private setupResizeHandling(): void {
-    // Handle window resize events to make the graph responsive
     this.resizeHandler = () => {
       if (this.cy) {
         this.cy.resize();
-        // Add a small delay before fitting
-        setTimeout(() => {
-          const currentWidth = window.innerWidth;
-          const isMobileLike = currentWidth < 768;
-          const fitPadding = isMobileLike ? 45 : 75;
 
+        const currentWidth = window.innerWidth;
+        const isSmallNow = currentWidth <= 500;
+        const newStyles = getResponsiveStyles(isSmallNow);
+        this.cy.style().fromJson(newStyles).update(); // Update styles
+
+        setTimeout(() => {
+          // const isMobileLike = currentWidth < 768; // No longer needed for fitPadding decision if separate
+          const fitPadding = currentWidth < 768 ? 45 : 75;
           this.cy.fit({ padding: fitPadding });
 
           console.log('Resize Fit Complete:');
@@ -438,11 +432,12 @@ export class NetworkGraph {
           console.log('  Graph Pan (after fit):', this.cy.pan());
 
           if (currentWidth <= 500) {
+            // Re-apply pan adjustment after fit
             const currentPan = this.cy.pan();
             this.cy.pan({ x: currentPan.x, y: currentPan.y - 70 });
-            console.log('  Graph Pan (after 500px adjustment):', this.cy.pan());
+            console.log('  Graph Pan (after 500px adjustment on resize):', this.cy.pan());
           }
-        }, 100); // 100ms delay
+        }, 100);
       }
     };
 
@@ -555,3 +550,70 @@ export class NetworkGraph {
 }
 
 export default NetworkGraph;
+
+function getResponsiveStyles(isSmallViewport: boolean) {
+  // Extract original styles for modification or inclusion
+  const originalNodeStyleDef = defaultStyles.find((s) => s.selector === 'node');
+  const originalEdgeStyleDef = defaultStyles.find((s) => s.selector === 'edge');
+  // Capture any other styles that are not 'node' or 'edge' (e.g., class selectors, etc.)
+  const otherDefaultStyles = defaultStyles.filter(
+    (s) => s.selector !== 'node' && s.selector !== 'edge'
+  );
+
+  if (
+    !originalNodeStyleDef ||
+    !originalNodeStyleDef.style ||
+    !originalEdgeStyleDef ||
+    !originalEdgeStyleDef.style
+  ) {
+    console.error(
+      'Critical: Could not find original node or edge style definitions in defaultStyles. Highlighting and other styles may fail.'
+    );
+    // Fallback: return defaultStyles and try to append highlighted, but this indicates a problem.
+    return [
+      ...defaultStyles, // Use the original defaultStyles as a base
+      {
+        selector: 'edge.highlighted',
+        style: { 'line-color': '#ff0000', width: 3 },
+      },
+    ];
+  }
+
+  const responsiveNodeStyleProps = { ...originalNodeStyleDef.style }; // Clone original node style properties
+
+  if (isSmallViewport) {
+    responsiveNodeStyleProps.width = 80;
+    responsiveNodeStyleProps.height = 80;
+    responsiveNodeStyleProps['font-size'] = 16;
+    // responsiveNodeStyleProps['text-margin-y'] = 8; // Example: if text margin needs adjustment
+  } else {
+    // Ensure it reverts to original values if not small (or set explicitly to defaults)
+    responsiveNodeStyleProps.width = originalNodeStyleDef.style.width || 60; // Fallback to known default
+    responsiveNodeStyleProps.height = originalNodeStyleDef.style.height || 60;
+    responsiveNodeStyleProps['font-size'] = originalNodeStyleDef.style['font-size'] || 12;
+    // responsiveNodeStyleProps['text-margin-y'] = originalNodeStyleDef.style['text-margin-y'] || 5;
+  }
+
+  const finalStyles = [
+    ...otherDefaultStyles, // Add any other styles from defaultStyles first
+    {
+      selector: 'node', // The main node style
+      style: responsiveNodeStyleProps,
+    },
+    {
+      selector: 'edge', // The main edge style
+      style: originalEdgeStyleDef.style,
+    },
+    {
+      selector: 'edge.highlighted', // The specific style for highlighted edges
+      style: {
+        'line-color': '#ff0000', // Red color
+        width: 3, // Slightly thicker
+        // Cytoscape should inherit other edge properties (like curve-style)
+        // from the base 'edge' selector unless overridden here.
+      },
+    },
+  ];
+
+  return finalStyles;
+}
