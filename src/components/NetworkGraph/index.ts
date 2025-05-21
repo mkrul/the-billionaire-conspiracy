@@ -99,54 +99,56 @@ export class NetworkGraph {
     }
   }
 
-  private highlightNodesByVenture(ventureName: string | null): void {
+  private resetAllHighlights(): void {
     if (!this.cy) return;
 
     const baseNodeStyle = defaultStyles.find((s) => s.selector === 'node');
-    const defaultBorderColor = baseNodeStyle?.style?.['border-color'] || '#666';
-    const defaultBorderOpacity = baseNodeStyle?.style?.['border-opacity'] || 0.5;
+    const defaultNodeBorderColor = baseNodeStyle?.style?.['border-color'] || '#666';
+    const defaultNodeBorderOpacity = baseNodeStyle?.style?.['border-opacity'] || 0.5;
 
     const baseEdgeStyle = defaultStyles.find((s) => s.selector === 'edge');
     const defaultEdgeColor = baseEdgeStyle?.style?.['line-color'] || '#444';
     const defaultEdgeWidth = baseEdgeStyle?.style?.width || 2;
 
-    // Reset all edges to default style first
-    this.cy.edges().forEach((edge) => {
-      edge.style('line-color', defaultEdgeColor);
-      edge.style('width', defaultEdgeWidth);
-      // Consider adding/removing a class like 'highlight-venture-edge' if preferred
-    });
-
-    // Reset all nodes: remove highlight class and reset inline-styled properties
     this.cy.nodes().forEach((node: CyNode) => {
       node.removeClass('highlight-venture-affiliated');
-      node.style('border-color', defaultBorderColor);
-      node.style('border-opacity', defaultBorderOpacity);
+      node.style('border-color', defaultNodeBorderColor);
+      node.style('border-opacity', defaultNodeBorderOpacity);
     });
 
-    // Remove 'selected' class from all legend items
+    this.cy.edges().forEach((edge) => {
+      edge.removeClass('highlighted');
+      edge.style('line-color', defaultEdgeColor);
+      edge.style('width', defaultEdgeWidth);
+    });
+
     if (this.ventureLegendList) {
       const legendItems = this.ventureLegendList.querySelectorAll('li');
       legendItems.forEach((item) => item.classList.remove('selected'));
     }
+    this.selectedVenture = null;
+  }
+
+  private highlightNodesByVenture(ventureName: string | null): void {
+    if (!this.cy) return;
+    this.resetAllHighlights(); // Always reset first
 
     if (ventureName && this.ventureColors[ventureName]) {
+      this.selectedVenture = ventureName; // Set the selected venture
       const ventureColor = this.ventureColors[ventureName];
 
       const highlightedStyle = defaultStyles.find(
         (s) => s.selector === 'node.highlight-venture-affiliated'
       );
       const highlightedBorderOpacity = highlightedStyle?.style?.['border-opacity'] || 1;
-
-      // Collection to store nodes affiliated with the selected venture
       const ventureAffiliatedNodesCollection = this.cy.collection();
 
-      // Identify and style affiliated NODES, and add them to our collection
       this.cy.nodes().forEach((node: CyNode) => {
         const nodeVentures = node.data('ventures') as string | undefined;
         if (nodeVentures) {
-          const ventureList = nodeVentures.split(';').map((v) => v.trim());
-          if (ventureList.includes(ventureName)) {
+          const ventureList = nodeVentures.split(';').map((v) => v.trim().toLowerCase());
+          const ventureNameToCompare = ventureName.toLowerCase();
+          if (ventureList.includes(ventureNameToCompare)) {
             node.addClass('highlight-venture-affiliated');
             node.style('border-color', ventureColor);
             node.style('border-opacity', highlightedBorderOpacity);
@@ -155,22 +157,18 @@ export class NetworkGraph {
         }
       });
 
-      // Highlight EDGES connecting two venture-affiliated nodes
       this.cy.edges().forEach((edge) => {
         const sourceNode = edge.source();
         const targetNode = edge.target();
-
-        // Check if both source and target are in the collection of affiliated nodes
         if (
           ventureAffiliatedNodesCollection.anySame(sourceNode) &&
           ventureAffiliatedNodesCollection.anySame(targetNode)
         ) {
           edge.style('line-color', ventureColor);
-          edge.style('width', 3); // Make highlighted edges slightly thicker
+          edge.style('width', 3);
         }
       });
 
-      // Add 'selected' class to the clicked legend item
       if (this.ventureLegendList) {
         const legendItems = this.ventureLegendList.querySelectorAll('li');
         legendItems.forEach((item) => {
@@ -185,34 +183,27 @@ export class NetworkGraph {
 
   private populateVentureLegend(ventureColors: Record<string, string>): void {
     if (!this.ventureLegendList) return;
-
-    this.ventureLegendList.innerHTML = ''; // Clear existing items
+    this.ventureLegendList.innerHTML = '';
 
     for (const ventureName in ventureColors) {
       if (Object.prototype.hasOwnProperty.call(ventureColors, ventureName)) {
         const color = ventureColors[ventureName];
-
         const listItem = document.createElement('li');
-
         const colorBox = document.createElement('div');
         colorBox.className = 'color-box';
         colorBox.style.backgroundColor = color;
-
         const nameSpan = document.createElement('span');
         nameSpan.textContent = ventureName;
-
         listItem.appendChild(colorBox);
         listItem.appendChild(nameSpan);
 
         listItem.addEventListener('click', () => {
           if (this.selectedVenture === ventureName) {
-            this.selectedVenture = null; // Deselect if clicking the same venture
+            this.highlightNodesByVenture(null); // Deselect
           } else {
-            this.selectedVenture = ventureName;
+            this.highlightNodesByVenture(ventureName); // Select
           }
-          this.highlightNodesByVenture(this.selectedVenture);
         });
-
         this.ventureLegendList.appendChild(listItem);
       }
     }
@@ -262,7 +253,14 @@ export class NetworkGraph {
               const ventureNameTrimmed = itemText.trim();
               const pill = document.createElement('div');
               pill.innerHTML = ventureNameTrimmed;
-              pill.style.backgroundColor = this.ventureColors[ventureNameTrimmed] || '#6c757d';
+
+              // Find the venture color in a case-insensitive way
+              const ventureKey = Object.keys(this.ventureColors).find(
+                (key) => key.toLowerCase() === ventureNameTrimmed.toLowerCase()
+              );
+              const ventureColor = ventureKey ? this.ventureColors[ventureKey] : '#6c757d';
+
+              pill.style.backgroundColor = ventureColor;
               pill.style.color = 'white';
               pill.style.paddingTop = '6px';
               pill.style.paddingBottom = '4px';
@@ -451,23 +449,17 @@ export class NetworkGraph {
 
     // Add click handler for nodes
     this.cy.on('tap', 'node', (event: { target: CyNode }) => {
-      // Reset all edges to default style
-      this.cy.edges().removeClass('highlighted');
+      this.resetAllHighlights(); // Clear any venture or previous person highlight
 
-      // Get the clicked node
       const node = event.target;
-
-      // Highlight all edges connected to this node
-      node.connectedEdges().addClass('highlighted');
-
-      // Show modal with node details
+      node.connectedEdges().addClass('highlighted'); // Highlight current person's connections in red
       this.showModal(node);
     });
 
     // Add click handler for background to reset highlighting
     this.cy.on('tap', (event: { target: any }) => {
       if (event.target === this.cy) {
-        this.cy.edges().removeClass('highlighted');
+        this.resetAllHighlights();
       }
     });
 
