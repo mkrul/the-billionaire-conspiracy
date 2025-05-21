@@ -1,160 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Network Graph</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url('public/images/map1.jpg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-attachment: fixed;
-            min-height: 100vh;
-            width: 100%;
-        }
-        #network-graph {
-            width: 100%;
-            height: 100vh;
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-        #network-graph * {
-            pointer-events: auto;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)), url('public/images/map1.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        width: 100%;
+      }
+      #network-graph {
+        width: 100%;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+      }
+      #network-graph * {
+        pointer-events: auto;
+      }
 
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+      }
 
-        /* When modal is active, use flexbox for centering */
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+      /* When modal is active, use flexbox for centering */
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-        .modal-content {
-            background-color: #1a1a1a;
-            padding: 20px;
-            border: 1px solid #444;
-            width: 80%;
-            max-width: 700px;
-            max-height: 600px;
-            color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            margin: 0;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #444 #1a1a1a;
-            position: relative;
-        }
+      .modal-content {
+        background-color: #1a1a1a;
+        padding: 20px;
+        border: 1px solid #444;
+        width: 80%;
+        max-width: 700px;
+        max-height: 600px;
+        color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        margin: 0;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #444 #1a1a1a;
+        position: relative;
+      }
 
-        /* Webkit scrollbar styling (Chrome, Safari, Edge) */
-        .modal-content::-webkit-scrollbar {
-            width: 8px;
-        }
+      /* Webkit scrollbar styling (Chrome, Safari, Edge) */
+      .modal-content::-webkit-scrollbar {
+        width: 8px;
+      }
 
-        .modal-content::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
+      .modal-content::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
 
-        .modal-content::-webkit-scrollbar-thumb {
-            background-color: #444;
-            border-radius: 4px;
-        }
+      .modal-content::-webkit-scrollbar-thumb {
+        background-color: #444;
+        border-radius: 4px;
+      }
 
-        /* Ensure the modal header stays visible while scrolling */
-        .modal-header {
-            position: sticky;
-            top: 0;
-            background-color: #1a1a1a;
-            z-index: 1;
-            padding-bottom: 20px;
-        }
+      /* Ensure the modal header stays visible while scrolling */
+      .modal-header {
+        position: sticky;
+        top: 0;
+        background-color: #1a1a1a;
+        z-index: 1;
+        padding-bottom: 20px;
+      }
 
-        /* Ensure the close button stays visible */
-        .close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            z-index: 2;
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+      /* Ensure the close button stays visible */
+      .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        z-index: 2;
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
 
-        .close:hover {
-            color: #fff;
-        }
+      .close:hover {
+        color: #fff;
+      }
 
-        .modal-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+      .modal-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
 
-        .modal-header img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 50%;
-            margin-right: 20px;
-        }
+      .modal-header img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-right: 20px;
+      }
 
-        .modal-header h2 {
-            margin: 0;
-            font-size: 24px;
-        }
+      .modal-header h2 {
+        margin: 0;
+        font-size: 24px;
+      }
 
-        .modal-section {
-            margin-bottom: 15px;
-        }
+      .modal-section {
+        margin-bottom: 15px;
+      }
 
-        .modal-section h3 {
-            margin: 0 0 10px 0;
-            color: #ccc;
-            font-size: 18px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 5px;
-        }
+      .modal-section h3 {
+        margin: 0 0 10px 0;
+        color: #ccc;
+        font-size: 18px;
+        border-bottom: 1px solid #444;
+        padding-bottom: 5px;
+      }
 
-        .modal-section p {
-            margin: 0;
-            line-height: 1.5;
-        }
+      .modal-section p {
+        margin: 0;
+        line-height: 1.5;
+      }
 
-        .quote-list {
-            font-style: italic;
-            padding-left: 20px;
-            list-style: none;
-            padding-left: 0;
-        }
+      .quote-list {
+        font-style: italic;
+        padding-left: 20px;
+        list-style: none;
+        padding-left: 0;
+      }
 
-        .quote-list li {
-            margin-bottom: 10px;
-            text-decoration: none;
-        }
+      .quote-list li {
+        margin-bottom: 10px;
+        text-decoration: none;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="network-graph"></div>
 
     <!-- Modal -->
@@ -184,17 +184,17 @@
     </div>
 
     <script type="module">
-        import { NetworkGraph } from '@/components/NetworkGraph';
+      import { NetworkGraph } from '@/components/NetworkGraph';
 
-        async function initializeGraph() {
-            const response = await fetch('./network_graph_relationships.csv');
-            const csvData = await response.text();
+      async function initializeGraph() {
+        const response = await fetch('./network_graph_relationships.csv');
+        const csvData = await response.text();
 
-            const graph = new NetworkGraph('network-graph');
-            await graph.initialize(csvData);
-        }
+        const graph = new NetworkGraph('network-graph');
+        await graph.initialize(csvData);
+      }
 
-        initializeGraph().catch(console.error);
+      initializeGraph().catch(console.error);
     </script>
-</body>
+  </body>
 </html>
