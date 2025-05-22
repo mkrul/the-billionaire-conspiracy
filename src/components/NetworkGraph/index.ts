@@ -723,7 +723,7 @@ function getResponsiveStyles(currentWidth: number, currentHeight: number) {
   const responsiveNodeStyleProps = { ...originalNodeStyleDef.style }; // Clone original node style properties
 
   // Determine if it's a small viewport based on width
-  const isSmallViewport = currentWidth <= 700; // Changed from 500 to 700 and removed height condition
+  const isSmallViewport = currentWidth <= 600; // Changed from 700 to 600 and removed height condition
 
   if (isSmallViewport) {
     responsiveNodeStyleProps.width = 80; // Increased from 60 to 80
