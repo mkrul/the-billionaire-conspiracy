@@ -350,7 +350,7 @@ export class NetworkGraph {
 
     const initialWidth = window.innerWidth;
     const isSmallInitially = initialWidth <= 500;
-    const currentStyles = getResponsiveStyles(isSmallInitially); // This now includes edge.highlighted
+    const currentStyles = getResponsiveStyles(initialWidth, window.innerHeight); // This now includes edge.highlighted
 
     const config: CyConfig = {
       container: this.container,
@@ -389,6 +389,7 @@ export class NetworkGraph {
     const layout = this.cy.layout(config.layout);
     layout.on('layoutready', () => {
       const currentWidth = window.innerWidth;
+      const currentHeight = window.innerHeight;
       const fitPadding = currentWidth < 768 ? 45 : 75;
       this.cy.fit({ padding: fitPadding });
       console.log('Layout Ready Fit Complete:');
@@ -474,9 +475,13 @@ export class NetworkGraph {
         this.cy.resize();
 
         const currentWidth = window.innerWidth;
-        const isSmallNow = currentWidth <= 500;
-        const newStyles = getResponsiveStyles(isSmallNow);
+        const currentHeight = window.innerHeight;
+        const newStyles = getResponsiveStyles(currentWidth, currentHeight);
         this.cy.style().fromJson(newStyles).update(); // Update styles
+
+        // Dynamically adjust minZoom based on current width
+        const newMinZoom = currentWidth < 768 ? 0.5 : 1;
+        this.cy.minZoom(newMinZoom);
 
         setTimeout(() => {
           const fitPadding = currentWidth < 768 ? 45 : 75;
@@ -629,7 +634,7 @@ export class NetworkGraph {
 
 export default NetworkGraph;
 
-function getResponsiveStyles(isSmallViewport: boolean) {
+function getResponsiveStyles(currentWidth: number, currentHeight: number) {
   // Extract original styles for modification or inclusion
   const originalNodeStyleDef = defaultStyles.find((s) => s.selector === 'node');
   const originalEdgeStyleDef = defaultStyles.find((s) => s.selector === 'edge');
@@ -668,10 +673,13 @@ function getResponsiveStyles(isSmallViewport: boolean) {
 
   const responsiveNodeStyleProps = { ...originalNodeStyleDef.style }; // Clone original node style properties
 
+  // Determine if it's a small viewport based on width OR height
+  const isSmallViewport = currentWidth <= 500 || currentHeight <= 450; // Using currentHeight
+
   if (isSmallViewport) {
-    responsiveNodeStyleProps.width = 80;
-    responsiveNodeStyleProps.height = 80;
-    responsiveNodeStyleProps['font-size'] = 16;
+    responsiveNodeStyleProps.width = 60; // Adjusted for smaller viewports
+    responsiveNodeStyleProps.height = 60; // Adjusted for smaller viewports
+    responsiveNodeStyleProps['font-size'] = 14; // Adjusted for smaller viewports
   } else {
     // Ensure it reverts to original values if not small (or set explicitly to defaults)
     responsiveNodeStyleProps.width = originalNodeStyleDef.style.width || 60; // Fallback to known default
