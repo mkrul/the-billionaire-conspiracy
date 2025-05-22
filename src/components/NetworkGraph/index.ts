@@ -341,7 +341,7 @@ export class NetworkGraph {
       OpenAI: '#008080',
       Coinbase: '#2fc22f',
       'Heritage Foundation': '#800000',
-      X: '#000000',
+      X: '#DDDDDD',
       'Cambridge Analytica': '#d900d9',
     };
 
