@@ -32,14 +32,14 @@ type CyConfig = {
   }>;
   layout: {
     name: string;
-    idealEdgeLength?: number;
-    nodeOverlap?: number;
+    idealEdgeLength?: number | ((node: CyNode) => number);
+    nodeOverlap?: number | ((node: CyNode) => number);
     refresh?: number;
     fit?: boolean;
-    padding?: number;
+    padding?: number | ((node: CyNode) => number);
     randomize?: boolean;
-    componentSpacing?: number;
-    nodeRepulsion?: number;
+    componentSpacing?: number | ((node: CyNode) => number);
+    nodeRepulsion?: number | ((node: CyNode) => number);
     edgeElasticity?: number;
     nestingFactor?: number;
     gravity?: number;
@@ -349,24 +349,24 @@ export class NetworkGraph {
     this.populateVentureLegend(this.ventureColors);
 
     const initialWidth = window.innerWidth;
-    const isSmallInitially = initialWidth <= 500;
-    const currentStyles = getResponsiveStyles(initialWidth, window.innerHeight); // This now includes edge.highlighted
+    const initialHeight = window.innerHeight;
+    const minDimension = Math.min(initialWidth, initialHeight);
 
     const config: CyConfig = {
       container: this.container,
       elements: this.transformDataToElements(),
-      style: currentStyles, // Use responsive styles directly
+      style: defaultStyles, // Use the default styles directly
       layout: {
         name: 'cose',
-        idealEdgeLength: initialWidth < 768 ? 75 : 100,
-        nodeOverlap: initialWidth < 768 ? 20 : 30,
-        padding: initialWidth < 768 ? 30 : 50,
-        gravity: initialWidth < 768 ? 80 : 60,
+        idealEdgeLength: minDimension * 0.15,
+        nodeOverlap: minDimension * 0.03,
+        padding: minDimension * 0.1,
+        gravity: 60,
         refresh: 20,
         fit: true,
         randomize: false,
-        componentSpacing: initialWidth < 768 ? 80 : 120,
-        nodeRepulsion: initialWidth < 768 ? 300000 : 450000,
+        componentSpacing: minDimension * 0.12,
+        nodeRepulsion: minDimension * 450,
         edgeElasticity: 100,
         nestingFactor: 5,
         numIter: 1000,
@@ -374,7 +374,7 @@ export class NetworkGraph {
         coolingFactor: 0.95,
         minTemp: 1.0,
       },
-      minZoom: initialWidth < 768 ? 0.5 : 1, // Responsive minZoom
+      minZoom: 0.2,
       maxZoom: 3,
       userPanningEnabled: true,
       userZoomingEnabled: true,
@@ -386,87 +386,12 @@ export class NetworkGraph {
 
     this.cy = cytoscape(config);
 
-    const layout = this.cy.layout(config.layout);
-    layout.on('layoutready', () => {
-      const currentWidth = window.innerWidth;
-      const currentHeight = window.innerHeight;
-      const fitPadding = currentWidth < 768 ? 45 : 75;
-      this.cy.fit({ padding: fitPadding });
-      console.log('Layout Ready Fit Complete:');
-      console.log(
-        '  Container Dimensions:',
-        this.container.offsetWidth,
-        'x',
-        this.container.offsetHeight
-      );
-      console.log('  Graph Extent (after fit):', this.cy.extent());
-      console.log('  Graph Zoom (after fit):', this.cy.zoom());
-      console.log('  Graph Pan (after fit):', this.cy.pan());
-
-      if (currentWidth <= 500) {
-        const currentPan = this.cy.pan();
-        this.cy.pan({ x: currentPan.x, y: currentPan.y - 70 });
-        console.log('  Graph Pan (after 500px adjustment):', this.cy.pan());
-      }
-    });
-    layout.run();
-
-    // This log might show pre-fit state or state before layout is fully ready
-    console.log('Initial Cytoscape setup complete (pre-layout fit):');
-    console.log(
-      '  Container Dimensions (at setup):',
-      this.container.offsetWidth,
-      'x',
-      this.container.offsetHeight
-    );
-    // Logging extent, zoom, pan here might be misleading as layout isn't finished.
-    // The 'layoutready' event provides more accurate post-layout values.
-
-    // Enable pan and zoom
-    this.cy.panningEnabled(true);
-    this.cy.zoomingEnabled(true);
-    this.cy.userZoomingEnabled(true);
-    this.cy.userPanningEnabled(true);
-
-    // Add event listener to prevent context menu from being blocked
-    this.container.addEventListener('contextmenu', (e) => {
-      e.stopPropagation();
-      return true;
-    });
-
-    // Log any nodes with missing images
-    this.cy.nodes().forEach((node: CyNode) => {
-      const img = new Image();
-      img.onerror = () => {
-        console.error(
-          'Failed to load image for node:',
-          node.data('label'),
-          'Image path:',
-          node.data('image')
-        );
-      };
-      img.src = node.data('image');
-    });
-
-    // Add click handler for nodes
-    this.cy.on('tap', 'node', (event: { target: CyNode }) => {
-      this.resetAllHighlights(); // Now correctly removes overrides
-
-      const node = event.target;
-      node.addClass('highlighted-node'); // Apply highlight class to the clicked node
-      node.connectedEdges().addClass('highlighted'); // Apply highlight class to connected edges
-      this.showModal(node);
-    });
-
-    // Add click handler for background to reset highlighting
-    this.cy.on('tap', (event: { target: any }) => {
-      if (event.target === this.cy) {
-        this.resetAllHighlights();
-      }
-    });
-
     // Setup resize handling
     this.setupResizeHandling();
+
+    // Run the layout
+    const layout = this.cy.layout(config.layout);
+    layout.run();
   }
 
   private setupResizeHandling(): void {
@@ -476,41 +401,23 @@ export class NetworkGraph {
 
         const currentWidth = window.innerWidth;
         const currentHeight = window.innerHeight;
-        const newStyles = getResponsiveStyles(currentWidth, currentHeight);
-        this.cy.style().fromJson(newStyles).update(); // Update styles
+        const minDimension = Math.min(currentWidth, currentHeight);
+        const padding = minDimension * 0.1;
 
-        // Dynamically adjust minZoom based on current width
-        const newMinZoom = currentWidth < 768 ? 0.5 : 1;
-        this.cy.minZoom(newMinZoom);
+        this.cy.fit({
+          padding: padding,
+          animate: true,
+          duration: 200,
+        });
 
-        setTimeout(() => {
-          const fitPadding = currentWidth < 768 ? 45 : 75;
-          this.cy.fit({ padding: fitPadding });
-
-          console.log('Resize Fit Complete:');
-          console.log(
-            '  Container Dimensions:',
-            this.container.offsetWidth,
-            'x',
-            this.container.offsetHeight
-          );
-          console.log('  Graph Extent (after fit):', this.cy.extent());
-          console.log('  Graph Zoom (after fit):', this.cy.zoom());
-          console.log('  Graph Pan (after fit):', this.cy.pan());
-
-          if (currentWidth <= 500) {
-            // Re-apply pan adjustment after fit
-            const currentPan = this.cy.pan();
-            this.cy.pan({ x: currentPan.x, y: currentPan.y - 70 });
-            console.log('  Graph Pan (after 500px adjustment on resize):', this.cy.pan());
-          }
-        }, 100);
+        // Center the graph
+        this.cy.center();
       }
     };
 
     window.addEventListener('resize', this.resizeHandler);
 
-    // Use ResizeObserver for container size changes if supported
+    // Use ResizeObserver for container size changes
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => {
         if (this.resizeHandler) {
@@ -520,13 +427,13 @@ export class NetworkGraph {
       this.resizeObserver.observe(this.container);
     }
 
-    // Initial orientation change handling for mobile
+    // Handle orientation changes
     this.orientationHandler = () => {
       setTimeout(() => {
         if (this.resizeHandler) {
           this.resizeHandler();
         }
-      }, 100); // Small delay to ensure layout has updated
+      }, 100);
     };
 
     window.addEventListener('orientationchange', this.orientationHandler);
