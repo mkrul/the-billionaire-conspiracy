@@ -48,4 +48,20 @@ export const defaultStyles = [
       'text-outline-opacity': 0.5,
     },
   },
+  {
+    selector: 'edge.highlighted',
+    style: {
+      'line-color': '#ff0000',
+      width: 3,
+    },
+  },
+  {
+    selector: 'node.highlighted-node',
+    style: {
+      'background-color': '#ff0000',
+      'border-color': '#ff0000',
+      'border-width': 3,
+      'border-opacity': 1,
+    },
+  },
 ];

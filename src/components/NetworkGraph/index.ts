@@ -449,6 +449,17 @@ export class NetworkGraph {
 
     this.cy.on('tap', 'node', (event: any) => {
       const node = event.target;
+
+      // Clear existing highlights first
+      this.resetAllHighlights();
+
+      // Add highlight class to the clicked node
+      node.addClass('highlighted-node');
+
+      // Highlight connected edges
+      node.connectedEdges().addClass('highlighted');
+
+      // Show the modal
       this.showModal(node);
     });
   }
