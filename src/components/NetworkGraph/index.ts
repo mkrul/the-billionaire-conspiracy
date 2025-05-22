@@ -462,6 +462,14 @@ export class NetworkGraph {
       // Show the modal
       this.showModal(node);
     });
+
+    // Add listener for tap on background to reset highlights
+    this.cy.on('tap', (event: any) => {
+      // Check if the tap target is the core (background)
+      if (event.target === this.cy) {
+        this.resetAllHighlights();
+      }
+    });
   }
 
   private setupResizeHandling(): void {
