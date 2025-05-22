@@ -90,6 +90,7 @@ export class NetworkGraph {
 
     // Only setup toggle if we have the list element
     if (this.ventureLegendList) {
+      this.ventureLegendList.style.paddingTop = '10px';
       this.setupVentureToggle();
     }
 
@@ -622,7 +623,6 @@ export class NetworkGraph {
     headerContainer.style.alignItems = 'center';
     headerContainer.style.padding = '8px 12px';
     headerContainer.style.width = '100%';
-
     // Create title
     const title = document.createElement('h3');
     title.textContent = 'Ventures';
