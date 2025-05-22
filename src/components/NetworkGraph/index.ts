@@ -711,7 +711,7 @@ export class NetworkGraph {
       this.ventureLegendList.style.display = 'none';
       // Keep hamburger icon the same, no change
     } else {
-      this.ventureLegendList.style.display = 'block';
+      this.ventureLegendList.style.removeProperty('display');
       // Keep hamburger icon the same, no change
     }
   }
