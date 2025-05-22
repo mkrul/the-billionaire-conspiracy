@@ -641,7 +641,6 @@ export class NetworkGraph {
     headerContainer.style.justifyContent = 'space-between';
     headerContainer.style.alignItems = 'center';
     headerContainer.style.padding = '8px 12px';
-    headerContainer.style.width = '100%';
     // Create title
     const title = document.createElement('h3');
     title.textContent = 'Ventures';
@@ -667,8 +666,8 @@ export class NetworkGraph {
     this.ventureToggleBtn.style.display = 'flex';
     this.ventureToggleBtn.style.alignItems = 'center';
     this.ventureToggleBtn.style.padding = '0';
-    this.ventureToggleBtn.style.paddingRight = '15px';
-    this.ventureToggleBtn.style.marginBottom = '5px';
+    this.ventureToggleBtn.style.paddingBottom = '5px';
+    this.ventureToggleBtn.style.margin = 'auto 0';
 
     // Add click handler
     const toggleHandler = this.toggleVenturePanel.bind(this);

@@ -41,7 +41,8 @@
         color: #fff;
         z-index: 900; /* Below modal, but above graph */
         width: 200px;
-        overflow-y: none;
+        overflow-y: auto; /* Changed from none to auto */
+        max-height: calc(100vh - 40px); /* Added to prevent overflow */
         font-size: 14px;
       }
 
