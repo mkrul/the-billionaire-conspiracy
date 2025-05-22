@@ -109,6 +109,21 @@ export class NetworkGraph {
     }
   }
 
+  private updateVentureListItemMargins(): void {
+    if (!this.ventureLegendList) return;
+
+    const isSmallViewport = window.innerWidth <= 600;
+    const listItems = this.ventureLegendList.querySelectorAll('li');
+
+    listItems.forEach((item) => {
+      if (isSmallViewport) {
+        item.style.marginBottom = '0px';
+      } else {
+        item.style.marginBottom = '5px'; // Default margin for larger screens
+      }
+    });
+  }
+
   private resetAllHighlights(): void {
     if (!this.cy) return;
 
@@ -216,6 +231,7 @@ export class NetworkGraph {
         this.ventureLegendList.appendChild(listItem);
       }
     }
+    this.updateVentureListItemMargins(); // Call to set initial margins
   }
 
   private showModal(node: CyNode): void {
@@ -491,6 +507,8 @@ export class NetworkGraph {
           },
         });
       }
+      // Update venture list item margins on resize
+      this.updateVentureListItemMargins();
     };
 
     window.addEventListener('resize', this.resizeHandler);
