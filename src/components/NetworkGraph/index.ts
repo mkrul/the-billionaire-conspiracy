@@ -352,6 +352,10 @@ export class NetworkGraph {
     const initialHeight = window.innerHeight;
     const minDimension = Math.min(initialWidth, initialHeight);
 
+    // Ensure container has proper dimensions before initialization
+    this.container.style.width = `${initialWidth}px`;
+    this.container.style.height = `${initialHeight}px`;
+
     const config: CyConfig = {
       container: this.container,
       elements: this.transformDataToElements(),
@@ -360,7 +364,7 @@ export class NetworkGraph {
         name: 'cose',
         idealEdgeLength: minDimension * 0.15,
         nodeOverlap: minDimension * 0.03,
-        padding: minDimension * 0.1,
+        padding: 20, // Use consistent padding with resizeHandler
         gravity: 60,
         refresh: 20,
         fit: true,
@@ -389,29 +393,70 @@ export class NetworkGraph {
     // Setup resize handling
     this.setupResizeHandling();
 
+    // Ensure graph is properly sized before running layout
+    if (this.cy) {
+      this.cy.resize();
+      this.cy.fit({
+        padding: 20,
+        animate: false,
+      });
+    }
+
     // Run the layout
     const layout = this.cy.layout(config.layout);
+
+    // After layout is done, ensure graph is properly fitted
+    layout.one('layoutstop', () => {
+      if (this.cy) {
+        this.cy.fit({
+          padding: 20,
+          animate: false,
+        });
+      }
+    });
+
+    // Add additional safety check to ensure proper sizing during layout computation
+    if (typeof MutationObserver !== 'undefined') {
+      const layoutObserver = new MutationObserver(() => {
+        if (this.cy) {
+          this.cy.resize();
+          this.cy.fit({
+            padding: 20,
+            animate: false,
+          });
+        }
+      });
+
+      // Observe changes to container's children (which will include cytoscape elements)
+      layoutObserver.observe(this.container, { childList: true, subtree: true });
+
+      // Disconnect after layout is complete
+      layout.one('layoutstop', () => {
+        layoutObserver.disconnect();
+      });
+    }
+
     layout.run();
   }
 
   private setupResizeHandling(): void {
     this.resizeHandler = () => {
       if (this.cy) {
+        // Update container dimensions first
+        this.container.style.width = `${window.innerWidth}px`;
+        this.container.style.height = `${window.innerHeight}px`;
+
+        // Then resize the graph
         this.cy.resize();
 
-        const currentWidth = window.innerWidth;
-        const currentHeight = window.innerHeight;
-        const minDimension = Math.min(currentWidth, currentHeight);
-        const padding = minDimension * 0.1;
-
+        // Fit with consistent padding
         this.cy.fit({
-          padding: padding,
-          animate: true,
-          duration: 200,
+          padding: 20,
+          animate: {
+            duration: 200,
+            easing: 'ease-in-out',
+          },
         });
-
-        // Center the graph
-        this.cy.center();
       }
     };
 
@@ -580,16 +625,16 @@ function getResponsiveStyles(currentWidth: number, currentHeight: number) {
 
   const responsiveNodeStyleProps = { ...originalNodeStyleDef.style }; // Clone original node style properties
 
-  // Determine if it's a small viewport based on width OR height
-  const isSmallViewport = currentWidth <= 500 || currentHeight <= 450; // Using currentHeight
+  // Determine if it's a small viewport based on width
+  const isSmallViewport = currentWidth <= 700; // Changed from 500 to 700 and removed height condition
 
   if (isSmallViewport) {
-    responsiveNodeStyleProps.width = 60; // Adjusted for smaller viewports
-    responsiveNodeStyleProps.height = 60; // Adjusted for smaller viewports
-    responsiveNodeStyleProps['font-size'] = 14; // Adjusted for smaller viewports
+    responsiveNodeStyleProps.width = 80; // Increased from 60 to 80
+    responsiveNodeStyleProps.height = 80; // Increased from 60 to 80
+    responsiveNodeStyleProps['font-size'] = 16; // Increased from 14 to 16
   } else {
     // Ensure it reverts to original values if not small (or set explicitly to defaults)
-    responsiveNodeStyleProps.width = originalNodeStyleDef.style.width || 60; // Fallback to known default
+    responsiveNodeStyleProps.width = originalNodeStyleDef.style.width || 60;
     responsiveNodeStyleProps.height = originalNodeStyleDef.style.height || 60;
     responsiveNodeStyleProps['font-size'] = originalNodeStyleDef.style['font-size'] || 12;
   }
