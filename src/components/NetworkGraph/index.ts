@@ -67,9 +67,12 @@ export class NetworkGraph {
   private orientationHandler: (() => void) | null = null;
   private modal: HTMLElement | null = null;
   private modalCloseBtn: HTMLElement | null = null;
+  private ventureLegendContainer: HTMLElement | null = null;
   private ventureLegendList: HTMLElement | null = null;
+  private ventureToggleBtn: HTMLElement | null = null;
   private selectedVenture: string | null = null;
   private ventureColors: Record<string, string> = {};
+  private isVenturePanelCollapsed: boolean = false;
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -82,8 +85,13 @@ export class NetworkGraph {
     this.modal = document.getElementById('node-modal');
     this.modalCloseBtn = this.modal?.querySelector('.close') || null;
 
-    // Get venture legend element
+    // Get venture legend elements
     this.ventureLegendList = document.getElementById('venture-list');
+
+    // Only setup toggle if we have the list element
+    if (this.ventureLegendList) {
+      this.setupVentureToggle();
+    }
 
     // Setup modal close button
     if (this.modalCloseBtn) {
@@ -503,15 +511,21 @@ export class NetworkGraph {
 
     // Remove modal event listeners
     if (this.modalCloseBtn) {
-      this.modalCloseBtn.removeEventListener('click', () => this.closeModal());
+      this.modalCloseBtn.removeEventListener('click', this.closeModal.bind(this));
     }
 
     if (this.modal) {
-      this.modal.removeEventListener('click', (e) => {
+      const modalClickHandler = (e: Event) => {
         if (e.target === this.modal) {
           this.closeModal();
         }
-      });
+      };
+      this.modal.removeEventListener('click', modalClickHandler);
+    }
+
+    // Remove venture toggle event listener
+    if (this.ventureToggleBtn) {
+      this.ventureToggleBtn.removeEventListener('click', this.toggleVenturePanel.bind(this));
     }
 
     if (this.cy) {
@@ -581,6 +595,73 @@ export class NetworkGraph {
       return smallValue + (largeValue - smallValue) * 0.5;
     }
     return largeValue;
+  }
+
+  // New method to setup the venture toggle button
+  private setupVentureToggle(): void {
+    if (!this.ventureLegendList) return;
+
+    const listParent = this.ventureLegendList.parentElement || document.body;
+
+    // Remove existing heading
+    const existingHeading = listParent.querySelector('h3');
+    if (existingHeading) {
+      existingHeading.parentElement?.removeChild(existingHeading);
+    }
+
+    // Create header container
+    const headerContainer = document.createElement('div');
+    headerContainer.className = 'venture-header';
+    headerContainer.style.display = 'flex';
+    headerContainer.style.justifyContent = 'space-between';
+    headerContainer.style.alignItems = 'center';
+    headerContainer.style.padding = '8px 12px';
+
+    // Create title
+    const title = document.createElement('h3');
+    title.textContent = 'Ventures';
+    title.style.margin = '0';
+    title.style.fontSize = '16px';
+    headerContainer.appendChild(title);
+
+    // Create toggle button with icon
+    this.ventureToggleBtn = document.createElement('button');
+    this.ventureToggleBtn.className = 'venture-toggle';
+    this.ventureToggleBtn.setAttribute('aria-label', 'Toggle ventures panel');
+    this.ventureToggleBtn.style.background = 'none';
+    this.ventureToggleBtn.style.border = 'none';
+    this.ventureToggleBtn.style.cursor = 'pointer';
+    this.ventureToggleBtn.style.padding = '4px';
+    this.ventureToggleBtn.innerHTML = '☰'; // Hamburger character
+    this.ventureToggleBtn.style.fontSize = '18px';
+
+    // Add click handler
+    const toggleHandler = this.toggleVenturePanel.bind(this);
+    this.ventureToggleBtn.addEventListener('click', toggleHandler);
+
+    // Add the button to header
+    headerContainer.appendChild(this.ventureToggleBtn);
+
+    // Add header to parent
+    if (listParent.firstChild) {
+      listParent.insertBefore(headerContainer, listParent.firstChild);
+    } else {
+      listParent.appendChild(headerContainer);
+    }
+  }
+
+  private toggleVenturePanel(): void {
+    if (!this.ventureLegendList || !this.ventureToggleBtn) return;
+
+    this.isVenturePanelCollapsed = !this.isVenturePanelCollapsed;
+
+    if (this.isVenturePanelCollapsed) {
+      this.ventureLegendList.style.display = 'none';
+      // Keep hamburger icon the same, no change
+    } else {
+      this.ventureLegendList.style.display = 'block';
+      // Keep hamburger icon the same, no change
+    }
   }
 }
 
