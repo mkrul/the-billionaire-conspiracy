@@ -618,15 +618,20 @@ export class NetworkGraph {
     const headerContainer = document.createElement('div');
     headerContainer.className = 'venture-header';
     headerContainer.style.display = 'flex';
-    headerContainer.style.justifyContent = 'flex-start';
+    headerContainer.style.justifyContent = 'space-between';
     headerContainer.style.alignItems = 'center';
     headerContainer.style.padding = '8px 12px';
+    headerContainer.style.width = '100%';
 
     // Create title
     const title = document.createElement('h3');
     title.textContent = 'Ventures';
     title.style.margin = '0';
     title.style.fontSize = '16px';
+    title.style.lineHeight = '21px';
+    title.style.display = 'flex';
+    title.style.alignItems = 'center';
+    title.style.padding = '0';
     headerContainer.appendChild(title);
 
     // Create toggle button with icon
@@ -640,6 +645,11 @@ export class NetworkGraph {
     this.ventureToggleBtn.style.fontSize = '21px';
     this.ventureToggleBtn.style.color = 'white';
     this.ventureToggleBtn.style.lineHeight = '0';
+    this.ventureToggleBtn.style.display = 'flex';
+    this.ventureToggleBtn.style.alignItems = 'center';
+    this.ventureToggleBtn.style.padding = '0';
+    this.ventureToggleBtn.style.paddingRight = '15px';
+    this.ventureToggleBtn.style.marginBottom = '5px';
 
     // Add click handler
     const toggleHandler = this.toggleVenturePanel.bind(this);
