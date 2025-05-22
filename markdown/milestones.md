@@ -9,3 +9,6 @@
 - Implemented initial Cytoscape instance with test graph
 - Added error handling for container initialization
 - Verified library functionality with test nodes and edges
+
+- Adjusted the CSS for the #venture-legend in index.html to set a fixed width of 300px and remove the max-height constraint to make the panel wider and its size consistent.
+- Updated the media query breakpoint for the Ventures panel in index.html from 500px to 600px.
