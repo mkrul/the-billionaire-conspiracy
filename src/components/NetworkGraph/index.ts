@@ -5,6 +5,7 @@ import { defaultStyles } from '@/styles/network';
 
 type CyInstance = ReturnType<typeof cytoscape>;
 type CyNode = ReturnType<CyInstance['nodes']>[number];
+type CyEdge = ReturnType<CyInstance['edges']>[number];
 type CyElement = {
   data: {
     id?: string;
@@ -113,7 +114,7 @@ export class NetworkGraph {
       node.removeStyle('border-opacity');
     });
 
-    this.cy.edges().forEach((edge) => {
+    this.cy.edges().forEach((edge: CyEdge) => {
       edge.removeClass('highlighted'); // Class for click highlight
 
       // Remove direct style overrides for edges.
@@ -156,7 +157,7 @@ export class NetworkGraph {
         }
       });
 
-      this.cy.edges().forEach((edge) => {
+      this.cy.edges().forEach((edge: CyEdge) => {
         const sourceNode = edge.source();
         const targetNode = edge.target();
         if (
@@ -357,15 +358,15 @@ export class NetworkGraph {
       style: currentStyles, // Use responsive styles directly
       layout: {
         name: 'cose',
-        idealEdgeLength: initialWidth < 768 ? 100 : 150, // Example responsive layout param
+        idealEdgeLength: initialWidth < 768 ? 75 : 100, // Reduced from 100:150
         nodeOverlap: initialWidth < 768 ? 20 : 30,
         padding: initialWidth < 768 ? 30 : 50, // Layout padding
         gravity: initialWidth < 768 ? 80 : 60,
         refresh: 20,
         fit: true,
         randomize: false,
-        componentSpacing: initialWidth < 768 ? 100 : 150,
-        nodeRepulsion: initialWidth < 768 ? 400000 : 600000,
+        componentSpacing: initialWidth < 768 ? 80 : 120, // Reduced from 100:150
+        nodeRepulsion: initialWidth < 768 ? 300000 : 450000, // Reduced from 400000:600000
         edgeElasticity: 100,
         nestingFactor: 5,
         numIter: 1000,
