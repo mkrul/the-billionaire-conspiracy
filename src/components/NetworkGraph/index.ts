@@ -349,8 +349,7 @@ export class NetworkGraph {
     this.populateVentureLegend(this.ventureColors);
 
     const initialWidth = window.innerWidth;
-    const initialHeight = window.innerHeight;
-    const isSmallInitially = initialWidth <= 500 || initialHeight <= 650;
+    const isSmallInitially = initialWidth <= 500;
     const currentStyles = getResponsiveStyles(isSmallInitially); // This now includes edge.highlighted
 
     const config: CyConfig = {
@@ -359,15 +358,15 @@ export class NetworkGraph {
       style: currentStyles, // Use responsive styles directly
       layout: {
         name: 'cose',
-        idealEdgeLength: this.getResponsiveSize(initialWidth, initialHeight, 75, 100),
-        nodeOverlap: this.getResponsiveSize(initialWidth, initialHeight, 20, 30),
-        padding: this.getResponsiveSize(initialWidth, initialHeight, 30, 50),
+        idealEdgeLength: initialWidth < 768 ? 75 : 100,
+        nodeOverlap: initialWidth < 768 ? 20 : 30,
+        padding: initialWidth < 768 ? 30 : 50,
         gravity: initialWidth < 768 ? 80 : 60,
         refresh: 20,
         fit: true,
         randomize: false,
-        componentSpacing: this.getResponsiveSize(initialWidth, initialHeight, 80, 120),
-        nodeRepulsion: this.getResponsiveSize(initialWidth, initialHeight, 300000, 450000),
+        componentSpacing: initialWidth < 768 ? 80 : 120,
+        nodeRepulsion: initialWidth < 768 ? 300000 : 450000,
         edgeElasticity: 100,
         nestingFactor: 5,
         numIter: 1000,
@@ -375,7 +374,7 @@ export class NetworkGraph {
         coolingFactor: 0.95,
         minTemp: 1.0,
       },
-      minZoom: this.getResponsiveSize(initialWidth, initialHeight, 0.5, 1), // Responsive minZoom
+      minZoom: initialWidth < 768 ? 0.5 : 1, // Responsive minZoom
       maxZoom: 3,
       userPanningEnabled: true,
       userZoomingEnabled: true,
@@ -390,8 +389,7 @@ export class NetworkGraph {
     const layout = this.cy.layout(config.layout);
     layout.on('layoutready', () => {
       const currentWidth = window.innerWidth;
-      const currentHeight = window.innerHeight;
-      const fitPadding = this.getResponsiveSize(currentWidth, currentHeight, 45, 75);
+      const fitPadding = currentWidth < 768 ? 45 : 75;
       this.cy.fit({ padding: fitPadding });
       console.log('Layout Ready Fit Complete:');
       console.log(
@@ -404,7 +402,7 @@ export class NetworkGraph {
       console.log('  Graph Zoom (after fit):', this.cy.zoom());
       console.log('  Graph Pan (after fit):', this.cy.pan());
 
-      if (currentWidth <= 500 || currentHeight <= 650) {
+      if (currentWidth <= 500) {
         const currentPan = this.cy.pan();
         this.cy.pan({ x: currentPan.x, y: currentPan.y - 70 });
         console.log('  Graph Pan (after 500px adjustment):', this.cy.pan());
@@ -476,13 +474,12 @@ export class NetworkGraph {
         this.cy.resize();
 
         const currentWidth = window.innerWidth;
-        const currentHeight = window.innerHeight;
-        const isSmallNow = currentWidth <= 500 || currentHeight <= 650;
+        const isSmallNow = currentWidth <= 500;
         const newStyles = getResponsiveStyles(isSmallNow);
         this.cy.style().fromJson(newStyles).update(); // Update styles
 
         setTimeout(() => {
-          const fitPadding = this.getResponsiveSize(currentWidth, currentHeight, 45, 75);
+          const fitPadding = currentWidth < 768 ? 45 : 75;
           this.cy.fit({ padding: fitPadding });
 
           console.log('Resize Fit Complete:');
@@ -496,11 +493,11 @@ export class NetworkGraph {
           console.log('  Graph Zoom (after fit):', this.cy.zoom());
           console.log('  Graph Pan (after fit):', this.cy.pan());
 
-          if (currentWidth <= 500 || currentHeight <= 650) {
+          if (currentWidth <= 500) {
             // Re-apply pan adjustment after fit
             const currentPan = this.cy.pan();
             this.cy.pan({ x: currentPan.x, y: currentPan.y - 70 });
-            console.log('  Graph Pan (after small viewport adjustment on resize):', this.cy.pan());
+            console.log('  Graph Pan (after 500px adjustment on resize):', this.cy.pan());
           }
         }, 100);
       }
@@ -672,9 +669,9 @@ function getResponsiveStyles(isSmallViewport: boolean) {
   const responsiveNodeStyleProps = { ...originalNodeStyleDef.style }; // Clone original node style properties
 
   if (isSmallViewport) {
-    responsiveNodeStyleProps.width = 70;
-    responsiveNodeStyleProps.height = 70;
-    responsiveNodeStyleProps['font-size'] = 14;
+    responsiveNodeStyleProps.width = 80;
+    responsiveNodeStyleProps.height = 80;
+    responsiveNodeStyleProps['font-size'] = 16;
   } else {
     // Ensure it reverts to original values if not small (or set explicitly to defaults)
     responsiveNodeStyleProps.width = originalNodeStyleDef.style.width || 60; // Fallback to known default
