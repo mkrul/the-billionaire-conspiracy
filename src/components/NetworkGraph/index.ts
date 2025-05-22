@@ -639,7 +639,7 @@ export class NetworkGraph {
     title.textContent = 'Ventures';
     title.style.margin = '0';
     title.style.fontSize = '16px';
-    title.style.lineHeight = '21px';
+    title.style.lineHeight = '10px';
     title.style.display = 'flex';
     title.style.alignItems = 'center';
     title.style.padding = '0';
