@@ -445,6 +445,11 @@ export class NetworkGraph {
     }
 
     layout.run();
+
+    this.cy.on('tap', 'node', (event: any) => {
+      const node = event.target;
+      this.showModal(node);
+    });
   }
 
   private setupResizeHandling(): void {
@@ -613,7 +618,7 @@ export class NetworkGraph {
     const headerContainer = document.createElement('div');
     headerContainer.className = 'venture-header';
     headerContainer.style.display = 'flex';
-    headerContainer.style.justifyContent = 'space-between';
+    headerContainer.style.justifyContent = 'flex-start';
     headerContainer.style.alignItems = 'center';
     headerContainer.style.padding = '8px 12px';
 
@@ -631,9 +636,10 @@ export class NetworkGraph {
     this.ventureToggleBtn.style.background = 'none';
     this.ventureToggleBtn.style.border = 'none';
     this.ventureToggleBtn.style.cursor = 'pointer';
-    this.ventureToggleBtn.style.padding = '4px';
     this.ventureToggleBtn.innerHTML = '☰'; // Hamburger character
-    this.ventureToggleBtn.style.fontSize = '18px';
+    this.ventureToggleBtn.style.fontSize = '21px';
+    this.ventureToggleBtn.style.color = 'white';
+    this.ventureToggleBtn.style.lineHeight = '0';
 
     // Add click handler
     const toggleHandler = this.toggleVenturePanel.bind(this);
