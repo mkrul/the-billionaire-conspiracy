@@ -284,13 +284,37 @@ export class NetworkGraph {
       if (Object.prototype.hasOwnProperty.call(ventureColors, ventureName)) {
         const color = ventureColors[ventureName];
         const listItem = document.createElement('li');
+        listItem.style.display = 'flex';
+        listItem.style.alignItems = 'center';
+        listItem.style.gap = '8px';
+
         const colorBox = document.createElement('div');
         colorBox.className = 'color-box';
         colorBox.style.backgroundColor = color;
+
         const nameSpan = document.createElement('span');
         nameSpan.textContent = ventureName;
+        nameSpan.style.flexGrow = '1';
+
+        const infoIcon = document.createElement('div');
+        infoIcon.style.width = '16px';
+        infoIcon.style.height = '16px';
+        infoIcon.style.borderRadius = '50%';
+        infoIcon.style.border = '1px solid white';
+        infoIcon.style.display = 'flex';
+        infoIcon.style.alignItems = 'center';
+        infoIcon.style.justifyContent = 'center';
+        infoIcon.style.fontSize = '12px';
+        infoIcon.style.fontFamily = 'serif';
+        infoIcon.style.cursor = 'pointer';
+        infoIcon.style.color = 'white';
+        infoIcon.style.fontStyle = 'italic';
+        infoIcon.textContent = 'i';
+        infoIcon.title = `Click for more information about ${ventureName}`;
+
         listItem.appendChild(colorBox);
         listItem.appendChild(nameSpan);
+        listItem.appendChild(infoIcon);
 
         listItem.addEventListener('click', () => {
           if (this.selectedVenture === ventureName) {
@@ -299,10 +323,19 @@ export class NetworkGraph {
             this.highlightNodesByVenture(ventureName); // Select
           }
         });
+
+        // Prevent info icon click from triggering the list item click
+        infoIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Here you can add the logic for showing more info about the venture
+          // For now, we'll just log to show it's working separately
+          console.log(`Show info for ${ventureName}`);
+        });
+
         this.ventureLegendList.appendChild(listItem);
       }
     }
-    this.updateVentureListItemMargins(); // Call to set initial margins
+    this.updateVentureListItemMargins();
   }
 
   private showModal(node: CyNode): void {
