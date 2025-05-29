@@ -149,12 +149,13 @@ export class NetworkGraph {
     title.style.margin = '0 0 20px 0'; // Explicitly set all margins
 
     const content = document.createElement('p');
-    content.textContent =
-      "The richest men in the country are in the final stages of a 40-year plan to kill America and crown themselves kings. It's not a conspiracy theory - they're bragging about it. And they're convinced that they've got you too distracted to care.";
+    content.innerHTML =
+      'The richest men in the country are in the final stages of a 40-year plan to kill America and crown themselves kings.<br><br>' +
+      "It's not a conspiracy theory - they're bragging about it. And they're convinced that they've got you too distracted to care.";
     content.style.lineHeight = '1.6';
     content.style.fontSize = '18px';
     content.style.marginBottom = '30px';
-    content.style.margin = '0 0 30px 0'; // Explicitly set all margins
+    content.style.margin = '0 0 30px 0';
 
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Continue';
