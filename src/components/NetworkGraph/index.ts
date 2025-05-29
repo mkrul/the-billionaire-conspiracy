@@ -73,6 +73,7 @@ export class NetworkGraph {
   private selectedVenture: string | null = null;
   private ventureColors: Record<string, string> = {};
   private isVenturePanelCollapsed: boolean = false;
+  private welcomePopupShown: boolean = false;
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -107,6 +108,75 @@ export class NetworkGraph {
         }
       });
     }
+
+    this.showWelcomePopup();
+  }
+
+  private showWelcomePopup(): void {
+    if (this.welcomePopupShown) return;
+
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+    overlay.style.zIndex = '999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.padding = '20px';
+    overlay.style.boxSizing = 'border-box'; // Add this to ensure padding is included in width calculation
+
+    const popup = document.createElement('div');
+    popup.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
+    popup.style.color = 'white';
+    popup.style.padding = '40px';
+    popup.style.borderRadius = '10px';
+    popup.style.maxWidth = '600px';
+    popup.style.width = '100%';
+    popup.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    popup.style.textAlign = 'center';
+    popup.style.boxSizing = 'border-box'; // Add this to ensure padding is included in width calculation
+
+    const title = document.createElement('h2');
+    title.textContent = 'The Billionaire Plan to End America';
+    title.style.marginBottom = '20px';
+    title.style.fontSize = '24px';
+    title.style.color = '#ff0000';
+    title.style.margin = '0 0 20px 0'; // Explicitly set all margins
+
+    const content = document.createElement('p');
+    content.textContent =
+      "The richest men in the country are in the final stages of a 40-year plan to kill America and crown themselves kings. It's not a conspiracy theory - they're bragging about it. And they're convinced that they've got you too distracted to care.";
+    content.style.lineHeight = '1.6';
+    content.style.fontSize = '18px';
+    content.style.marginBottom = '30px';
+    content.style.margin = '0 0 30px 0'; // Explicitly set all margins
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Continue';
+    closeButton.style.padding = '10px 30px';
+    closeButton.style.backgroundColor = '#ff0000';
+    closeButton.style.color = 'white';
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '5px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '16px';
+    closeButton.style.margin = '0'; // Explicitly set margin
+
+    closeButton.addEventListener('click', () => {
+      document.body.removeChild(overlay);
+      this.welcomePopupShown = true;
+    });
+
+    popup.appendChild(title);
+    popup.appendChild(content);
+    popup.appendChild(closeButton);
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
   }
 
   private updateVentureListItemMargins(): void {
@@ -575,6 +645,8 @@ export class NetworkGraph {
       this.cy.destroy();
       this.cy = null;
     }
+
+    this.welcomePopupShown = false;
   }
 
   private transformDataToElements(): CyElement[] {
