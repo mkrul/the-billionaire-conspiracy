@@ -659,6 +659,7 @@ export class NetworkGraph {
     headerContainer.style.justifyContent = 'space-between';
     headerContainer.style.alignItems = 'center';
     headerContainer.style.padding = '8px 12px';
+
     // Create title
     const title = document.createElement('h3');
     title.textContent = 'Ventures';
@@ -677,7 +678,7 @@ export class NetworkGraph {
     this.ventureToggleBtn.style.background = 'none';
     this.ventureToggleBtn.style.border = 'none';
     this.ventureToggleBtn.style.cursor = 'pointer';
-    this.ventureToggleBtn.innerHTML = '☰'; // Hamburger character
+    this.ventureToggleBtn.innerHTML = '☰';
     this.ventureToggleBtn.style.fontSize = '21px';
     this.ventureToggleBtn.style.color = 'white';
     this.ventureToggleBtn.style.lineHeight = '0';
@@ -699,6 +700,13 @@ export class NetworkGraph {
       listParent.insertBefore(headerContainer, listParent.firstChild);
     } else {
       listParent.appendChild(headerContainer);
+    }
+
+    // Set initial state based on viewport width
+    const isMobile = window.innerWidth <= 600;
+    if (isMobile) {
+      this.isVenturePanelCollapsed = true;
+      this.ventureLegendList.style.display = 'none';
     }
   }
 
